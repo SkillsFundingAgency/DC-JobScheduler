@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <AssemblyName>ESFA.DC.JobScheduler.Console</AssemblyName>
+    <RootNamespace>ESFA.DC.JobScheduler.Console</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <CodeAnalysisRuleSet>ESFA.DC.JobScheduler.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <CodeAnalysisRuleSet>ESFA.DC.JobScheduler.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ESFA.DC.Queueing.Interface" Version="0.1.1-beta0001" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta006" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ESFA.DC.JobQueueManager">
+      <HintPath>..\..\..\DC-JobQueueManager\src\DC.JobQueueManager\bin\Debug\netstandard2.0\ESFA.DC.JobQueueManager.dll</HintPath>
+    </Reference>
+    <Reference Include="ESFA.DC.JobQueueManager.Data">
+      <HintPath>..\..\..\DC-JobQueueManager\src\DC.JobQueueManager\bin\Debug\netstandard2.0\ESFA.DC.JobQueueManager.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="ESFA.DC.JobQueueManager.Interfaces">
+      <HintPath>..\..\..\DC-JobQueueManager\src\DC.JobQueueManager\bin\Debug\netstandard2.0\ESFA.DC.JobQueueManager.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="ESFA.DC.JobQueueManager.Models">
+      <HintPath>..\..\..\DC-JobQueueManager\src\DC.JobQueueManager\bin\Debug\netstandard2.0\ESFA.DC.JobQueueManager.Models.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <HintPath>System</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
