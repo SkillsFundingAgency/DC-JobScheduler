@@ -22,10 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="JobManager\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="ESFA.DC.Auditing.Interface" Version="0.1.0-beta0001" />
     <PackageReference Include="ESFA.DC.IO.Interfaces" Version="0.1.2-beta0001" />
     <PackageReference Include="ESFA.DC.JobContext" Version="0.1.1-beta0001" />

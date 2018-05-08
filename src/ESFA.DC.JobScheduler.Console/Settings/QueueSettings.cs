@@ -1,12 +1,15 @@
 ﻿using ESFA.DC.Queueing.Interface;
+using Newtonsoft.Json;
 
-namespace ESFA.DC.JobScheduler.ServiceBus
+namespace ESFA.DC.JobScheduler.Console.Settings
 {
-    public class QueueConfiguration : IQueueConfiguration
+    public class QueueSettings : IQueueConfiguration
     {
-        public string ConnectionString => string.Empty;
+        [JsonRequired]
+        public string ConnectionString { get; set; }
 
-        public string QueueName => string.Empty;
+        [JsonRequired]
+        public string QueueName { get; set; }
 
         public string TopicName => string.Empty;
 

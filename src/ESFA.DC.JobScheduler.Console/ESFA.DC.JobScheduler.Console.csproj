@@ -16,8 +16,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.8.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.2" />
+    <PackageReference Include="ESFA.DC.Logging" Version="0.1.1-beta0001" />
+    <PackageReference Include="ESFA.DC.Queueing" Version="0.1.1-beta0001" />
     <PackageReference Include="ESFA.DC.Queueing.Interface" Version="0.1.1-beta0001" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta006" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ESFA.DC.JobScheduler\ESFA.DC.JobScheduler.csproj" />
   </ItemGroup>
 
   <ItemGroup>
