@@ -17,10 +17,21 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.8.0" />
+    <PackageReference Include="Autofac.Configuration" Version="4.0.1" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.2" />
+    <PackageReference Include="ESFA.DC.Auditing" Version="0.1.0-beta0001" />
     <PackageReference Include="ESFA.DC.Logging" Version="0.1.1-beta0001" />
     <PackageReference Include="ESFA.DC.Queueing" Version="0.1.1-beta0001" />
     <PackageReference Include="ESFA.DC.Queueing.Interface" Version="0.1.1-beta0001" />
+    <PackageReference Include="ESFA.DC.Serialization.Interfaces" Version="0.1.1-beta0001" />
+    <PackageReference Include="ESFA.DC.Serialization.Json" Version="0.1.1-beta0001" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="2.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta006" />
   </ItemGroup>
@@ -32,19 +43,32 @@
   <ItemGroup>
     <Reference Include="ESFA.DC.JobQueueManager">
       <HintPath>..\..\..\DC-JobQueueManager\src\DC.JobQueueManager\bin\Debug\netstandard2.0\ESFA.DC.JobQueueManager.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="ESFA.DC.JobQueueManager.Data">
       <HintPath>..\..\..\DC-JobQueueManager\src\DC.JobQueueManager\bin\Debug\netstandard2.0\ESFA.DC.JobQueueManager.Data.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="ESFA.DC.JobQueueManager.Interfaces">
       <HintPath>..\..\..\DC-JobQueueManager\src\DC.JobQueueManager\bin\Debug\netstandard2.0\ESFA.DC.JobQueueManager.Interfaces.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="ESFA.DC.JobQueueManager.Models">
       <HintPath>..\..\..\DC-JobQueueManager\src\DC.JobQueueManager\bin\Debug\netstandard2.0\ESFA.DC.JobQueueManager.Models.dll</HintPath>
+      <Private>true</Private>
     </Reference>
     <Reference Include="System">
       <HintPath>System</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.salman.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

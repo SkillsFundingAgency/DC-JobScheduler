@@ -13,14 +13,14 @@ namespace ESFA.DC.JobScheduler.QueueHandler
 {
     public class QueueHandler : IQueueHandler
     {
-        private readonly IKeyValuePersistenceService _keyValuePersistenceService;
+        private readonly IJobSchedulerStatusManager _jobSchedulerStatusManager;
         private readonly IMessagingService _messagingService;
         private readonly IJobQueueManager _jobQueueManager;
         private readonly IAuditor _auditor;
 
-        public QueueHandler(IMessagingService messagingService, IJobQueueManager jobQueueManager, IAuditor auditor, IKeyValuePersistenceService keyValuePersistenceService)
+        public QueueHandler(IMessagingService messagingService, IJobQueueManager jobQueueManager, IAuditor auditor, IJobSchedulerStatusManager jobSchedulerStatusManager)
         {
-            _keyValuePersistenceService = keyValuePersistenceService;
+            _jobSchedulerStatusManager = jobSchedulerStatusManager;
             _jobQueueManager = jobQueueManager;
             _messagingService = messagingService;
             _auditor = auditor;
@@ -30,13 +30,8 @@ namespace ESFA.DC.JobScheduler.QueueHandler
         {
             while (true)
             {
-                if (await IsJobQueueProcessingEnabled())
+                if (await _jobSchedulerStatusManager.IsJobQueueProcessingEnabledAsync())
                 {
-                    if (_jobQueueManager.AnyInProgressReferenceJob())
-                    {
-                        continue;
-                    }
-
                     var job = _jobQueueManager.GetJobByPriority();
 
                     if (job != null)
@@ -83,18 +78,6 @@ namespace ESFA.DC.JobScheduler.QueueHandler
             {
                 await _auditor.AuditAsync(message, AuditEventType.ServiceFailed, $"Failed to update job status with exception : {exception}");
             }
-        }
-
-        public async Task<bool> IsJobQueueProcessingEnabled()
-        {
-            var isKeyAdded = await _keyValuePersistenceService.ContainsAsync("JobScheduler");
-            if (!isKeyAdded)
-            {
-                return true;
-            }
-
-            var keyValue = await _keyValuePersistenceService.GetAsync("JobScheduler");
-            return keyValue == "1";
         }
     }
 }

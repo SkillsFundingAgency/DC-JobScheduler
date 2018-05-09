@@ -286,3 +286,4 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+src/ESFA.DC.JobScheduler.Console/appsettings.salman.json

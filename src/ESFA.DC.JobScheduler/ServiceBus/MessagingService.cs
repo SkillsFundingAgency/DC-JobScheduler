@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using ESFA.DC.JobContext;
 using ESFA.DC.Queueing.Interface;
-using Microsoft.ServiceBus.Messaging;
+using Microsoft.Azure.ServiceBus;
 using Polly;
 
 namespace ESFA.DC.JobScheduler.ServiceBus
@@ -27,6 +27,8 @@ namespace ESFA.DC.JobScheduler.ServiceBus
                 .Or<TransactionInDoubtException>()
                 .Or<QuotaExceededException>()
                 .WaitAndRetryAsync(3, i => TimeSpan.FromSeconds(5), (exc, span) => LogException(exc));
+
+            await _queuePublishService.PublishAsync(message);
 
             await retryPolicy.ExecuteAsync(async () =>
                 {
