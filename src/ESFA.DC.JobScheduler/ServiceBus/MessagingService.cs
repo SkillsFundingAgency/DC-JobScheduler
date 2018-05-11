@@ -28,8 +28,6 @@ namespace ESFA.DC.JobScheduler.ServiceBus
                 .Or<QuotaExceededException>()
                 .WaitAndRetryAsync(3, i => TimeSpan.FromSeconds(5), (exc, span) => LogException(exc));
 
-            await _queuePublishService.PublishAsync(message);
-
             await retryPolicy.ExecuteAsync(async () =>
                 {
                     await _queuePublishService.PublishAsync(message);
