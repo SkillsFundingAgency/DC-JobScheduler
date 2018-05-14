@@ -40,7 +40,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                     }
                 }
 
-                Thread.Sleep(50000);
+                Thread.Sleep(5000);
             }
         }
 

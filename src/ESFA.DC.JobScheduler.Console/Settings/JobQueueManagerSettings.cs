@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace ESFA.DC.JobScheduler.Console.Settings
 {
-    public class JobQueueManagerSettings : IJobQueueManagerSettings
+    public class JobQueueManagerSettings
     {
         [JsonRequired]
         public string ConnectionString { get; set; }

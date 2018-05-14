@@ -5,6 +5,9 @@ using Autofac;
 using ESFA.DC.Auditing;
 using ESFA.DC.Auditing.Dto;
 using ESFA.DC.Auditing.Interface;
+//using ESFA.DC.Auditing;
+//using ESFA.DC.Auditing.Dto;
+//using ESFA.DC.Auditing.Interface;
 using ESFA.DC.IO.Interfaces;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobQueueManager;
@@ -32,11 +35,6 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.RegisterType<Auditor>().As<IAuditor>().InstancePerLifetimeScope();
             builder.RegisterType<JobSchedulerStatusManager>().As<IJobSchedulerStatusManager>().InstancePerLifetimeScope();
             builder.RegisterType<JsonSerializationService>().As<ISerializationService>().InstancePerLifetimeScope();
-
-            //builder.RegisterType<JobSchedularStatusManager>().As<IJobSchedularStatusManager>();
-            //builder.RegisterType<KeyValueRepository>().As<IKeyValueRepository>().InstancePerLifetimeScope();
-            //builder.RegisterType<KeyValueStorageConfig>().As<ISqlServerKeyValuePersistenceServiceConfig>().InstancePerLifetimeScope();
-            //builder.RegisterType<SqlServerKeyValuePersistenceService>().As<IKeyValuePersistenceService>().InstancePerLifetimeScope();
 
             builder.RegisterType<QueuePublishService<JobContextMessage>>().As<IQueuePublishService<JobContextMessage>>().SingleInstance();
             builder.RegisterType<QueuePublishService<AuditingDto>>().As<IQueuePublishService<AuditingDto>>().SingleInstance();
