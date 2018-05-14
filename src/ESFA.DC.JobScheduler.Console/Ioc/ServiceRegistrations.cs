@@ -8,6 +8,7 @@ using ESFA.DC.Auditing.Interface;
 using ESFA.DC.IO.Interfaces;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobQueueManager;
+using ESFA.DC.JobQueueManager.Data;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.JobScheduler.Console.Settings;
 using ESFA.DC.JobScheduler.QueueHandler;
@@ -17,6 +18,7 @@ using ESFA.DC.Queueing;
 using ESFA.DC.Queueing.Interface;
 using ESFA.DC.Serialization.Interfaces;
 using ESFA.DC.Serialization.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace ESFA.DC.JobScheduler.Console.Ioc
 {
@@ -38,6 +40,19 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
 
             builder.RegisterType<QueuePublishService<JobContextMessage>>().As<IQueuePublishService<JobContextMessage>>().SingleInstance();
             builder.RegisterType<QueuePublishService<AuditingDto>>().As<IQueuePublishService<AuditingDto>>().SingleInstance();
+
+            builder.Register(context =>
+                {
+                    var queueManagerSettings = context.Resolve<JobQueueManagerSettings>();
+                    var optionsBuilder = new DbContextOptionsBuilder();
+                    optionsBuilder.UseSqlServer(
+                        queueManagerSettings.ConnectionString,
+                        options => options.EnableRetryOnFailure(3, TimeSpan.FromSeconds(3), new List<int>()));
+
+                    return optionsBuilder.Options;
+                })
+                .As<DbContextOptions>()
+                .SingleInstance();
 
             builder.Register(context =>
             {

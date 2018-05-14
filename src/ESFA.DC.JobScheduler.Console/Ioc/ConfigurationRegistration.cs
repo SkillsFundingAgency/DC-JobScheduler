@@ -12,7 +12,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
         public static void SetupConfigurations(this ContainerBuilder builder, IConfiguration configuration)
         {
             builder.Register(c => configuration.GetConfigSection<JobQueueManagerSettings>())
-                .As<IJobQueueManagerSettings>().SingleInstance();
+                .As<JobQueueManagerSettings>().SingleInstance();
 
             builder.Register(c => configuration.GetConfigSection<QueueConfiguration>())
                 .As<IQueueConfiguration>().SingleInstance();
