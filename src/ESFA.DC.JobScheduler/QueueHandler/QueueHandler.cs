@@ -36,7 +36,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
 
                     if (job != null)
                     {
-                        await MoveJobForProcessing(job);
+                       await MoveJobForProcessing(job);
                     }
                 }
 

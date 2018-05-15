@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
+using System.Transactions;
 using Autofac;
 using ESFA.DC.Auditing;
 using ESFA.DC.Auditing.Dto;
@@ -21,7 +23,10 @@ using ESFA.DC.Queueing;
 using ESFA.DC.Queueing.Interface;
 using ESFA.DC.Serialization.Interfaces;
 using ESFA.DC.Serialization.Json;
+using Microsoft.Azure.ServiceBus;
 using Microsoft.EntityFrameworkCore;
+using Polly;
+using Polly.Registry;
 
 namespace ESFA.DC.JobScheduler.Console.Ioc
 {
@@ -59,6 +64,29 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             })
                 .As<ILogger>()
                 .InstancePerLifetimeScope();
+
+            builder.Register(context =>
+                {
+                    var registry = new PolicyRegistry();
+                    registry.Add(
+                        "ServiceBusRetryPolicy",
+                        Policy
+                            .Handle<MessagingEntityNotFoundException>()
+                            .Or<ServerBusyException>()
+                            .Or<ServiceBusCommunicationException>()
+                            .Or<TimeoutException>()
+                            .Or<TransactionInDoubtException>()
+                            .Or<QuotaExceededException>()
+                            .WaitAndRetryAsync(
+                                3, // number of retries
+                                retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), // exponential backoff
+                                (exception, timeSpan, retryCount, executionContext) =>
+                                {
+                                    // TODO: log the error
+                                }));
+                    return registry;
+                }).As<IReadOnlyPolicyRegistry<string>>()
+                .SingleInstance();
         }
     }
 }

@@ -47,6 +47,8 @@ namespace ESFA.DC.JobScheduler.Console
                 var schedular = scope.Resolve<IQueueHandler>();
                 schedular.ProcessNextJobAsync();
             }
+
+            System.Console.ReadLine();
         }
     }
 }
