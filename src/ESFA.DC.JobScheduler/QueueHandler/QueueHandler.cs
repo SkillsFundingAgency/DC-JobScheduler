@@ -61,6 +61,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                     try
                     {
                         await _messagingService.SendMessagesAsync(message);
+                        await _auditor.AuditAsync(message, AuditEventType.JobSubmitted);
                     }
                     catch (Exception ex)
                     {
@@ -71,7 +72,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                 }
                 else
                 {
-                    await _auditor.AuditAsync(message, AuditEventType.ServiceFailed, "Failed to update job status, no message is added to the service bus queue");
+                    await _auditor.AuditAsync(message, AuditEventType.JobFailed, "Failed to update job status, no message is added to the service bus queue");
                 }
             }
             catch (Exception exception)
