@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace ESFA.DC.JobScheduler.Console.Settings
 {
-    public class QueueConfiguration : IQueueConfiguration
+    public class AuditQueueConfiguration : IQueueConfiguration
     {
         [JsonRequired]
         public string ConnectionString { get; set; }

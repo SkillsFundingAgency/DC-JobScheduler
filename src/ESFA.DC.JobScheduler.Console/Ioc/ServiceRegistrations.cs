@@ -37,12 +37,16 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.RegisterType<MessagingService>().As<IMessagingService>().InstancePerLifetimeScope();
             builder.RegisterType<JobQueueManager.JobQueueManager>().As<IJobQueueManager>().InstancePerLifetimeScope();
             builder.RegisterType<QueueHandler.QueueHandler>().As<IQueueHandler>().InstancePerLifetimeScope();
-            builder.RegisterType<Auditor>().As<IAuditor>().InstancePerLifetimeScope();
             builder.RegisterType<JobSchedulerStatusManager>().As<IJobSchedulerStatusManager>().InstancePerLifetimeScope();
-            builder.RegisterType<JsonSerializationService>().As<ISerializationService>().InstancePerLifetimeScope();
 
             builder.RegisterType<QueuePublishService<JobContextMessage>>().As<IQueuePublishService<JobContextMessage>>().SingleInstance();
-            builder.RegisterType<QueuePublishService<AuditingDto>>().As<IQueuePublishService<AuditingDto>>().SingleInstance();
+            builder.RegisterType<JsonSerializationService>().As<ISerializationService>().InstancePerLifetimeScope();
+
+            builder.Register(c => new QueuePublishService<AuditingDto>(
+                    c.Resolve<IQueueConfiguration>(),
+                    c.Resolve<ISerializationService>()))
+                .As<IQueuePublishService<AuditingDto>>();
+            builder.RegisterType<Auditor>().As<IAuditor>().InstancePerLifetimeScope();
 
             builder.Register(context =>
                 {
