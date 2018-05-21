@@ -16,6 +16,9 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
 
             builder.Register(c => configuration.GetConfigSection<IlrQueueConfiguration>())
                 .As<IQueueConfiguration>().SingleInstance();
+
+            builder.Register(c => configuration.GetConfigSection<AuditQueueConfiguration>())
+                .As<AuditQueueConfiguration>().SingleInstance();
         }
     }
 }

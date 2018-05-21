@@ -43,7 +43,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.RegisterType<JsonSerializationService>().As<ISerializationService>().InstancePerLifetimeScope();
 
             builder.Register(c => new QueuePublishService<AuditingDto>(
-                    c.Resolve<IQueueConfiguration>(),
+                    c.Resolve<AuditQueueConfiguration>(),
                     c.Resolve<ISerializationService>()))
                 .As<IQueuePublishService<AuditingDto>>();
             builder.RegisterType<Auditor>().As<IAuditor>().InstancePerLifetimeScope();
