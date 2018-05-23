@@ -63,6 +63,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
             };
             var topics = new List<ITopicItem>()
             {
+                new TopicItem("validation", "validation", tasks),
                 new TopicItem("fundingcalc-init", "fundingcalc-init", tasks)
             };
 
