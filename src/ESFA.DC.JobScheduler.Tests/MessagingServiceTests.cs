@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using ESFA.DC.JobContext;
+using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobScheduler.ServiceBus;
 using ESFA.DC.Queueing.Interface;
 using Microsoft.Azure.ServiceBus;
@@ -18,16 +20,23 @@ namespace ESFA.DC.JobScheduler.Tests
         [Fact]
         public void SendMessagesAsync_Test()
         {
-            var queuePublishServiceMock = new Mock<IQueuePublishService<JobContextMessage>>();
-            queuePublishServiceMock.Setup(x => x.PublishAsync(It.IsAny<JobContextMessage>())).Returns(Task.CompletedTask);
+            var queuePublishServiceMock = new Mock<IQueuePublishService<JobContextDto>>();
+            queuePublishServiceMock.Setup(x => x.PublishAsync(new JobContextDto())).Returns(Task.CompletedTask);
+
+            var message = new JobContextMessage()
+            {
+                KeyValuePairs = new ConcurrentDictionary<JobContextMessageKey, object>(),
+                Topics = new List<ITopicItem>(),
+                JobId = 1,
+            };
 
             var polyMock = new Mock<IReadOnlyPolicyRegistry<string>>();
             polyMock.Setup(x => x.Get<IAsyncPolicy>(It.IsAny<string>())).Returns(Policy.NoOpAsync);
 
-            var messagingService = new MessagingService(queuePublishServiceMock.Object, polyMock.Object);
-            messagingService.SendMessagesAsync(It.IsAny<JobContextMessage>()).ConfigureAwait(true);
+            var messagingService = new MessagingService(queuePublishServiceMock.Object, polyMock.Object, new JobContextMapper());
+            messagingService.SendMessagesAsync(message).ConfigureAwait(true);
 
-            queuePublishServiceMock.Verify(x => x.PublishAsync(It.IsAny<JobContextMessage>()), Times.Once);
+            queuePublishServiceMock.Verify(x => x.PublishAsync(It.IsAny<JobContextDto>()), Times.Once);
         }
     }
 }
