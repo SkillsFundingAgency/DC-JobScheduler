@@ -34,12 +34,13 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<JobContextMapper>().InstancePerLifetimeScope();
             builder.RegisterType<MessagingService>().As<IMessagingService>().InstancePerLifetimeScope();
             builder.RegisterType<JobQueueManager.JobQueueManager>().As<IJobQueueManager>().InstancePerLifetimeScope();
             builder.RegisterType<QueueHandler.QueueHandler>().As<IQueueHandler>().InstancePerLifetimeScope();
             builder.RegisterType<JobSchedulerStatusManager>().As<IJobSchedulerStatusManager>().InstancePerLifetimeScope();
 
-            builder.RegisterType<QueuePublishService<JobContextMessage>>().As<IQueuePublishService<JobContextMessage>>().SingleInstance();
+            builder.RegisterType<QueuePublishService<JobContextDto>>().As<IQueuePublishService<JobContextDto>>().SingleInstance();
             builder.RegisterType<JsonSerializationService>().As<ISerializationService>().InstancePerLifetimeScope();
 
             builder.Register(c => new QueuePublishService<AuditingDto>(
