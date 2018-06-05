@@ -7,6 +7,8 @@ using Autofac;
 using ESFA.DC.Auditing;
 using ESFA.DC.Auditing.Dto;
 using ESFA.DC.Auditing.Interface;
+using ESFA.DC.DateTime.Provider;
+using ESFA.DC.DateTime.Provider.Interface;
 //using ESFA.DC.Auditing;
 //using ESFA.DC.Auditing.Dto;
 //using ESFA.DC.Auditing.Interface;
@@ -42,6 +44,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
 
             builder.RegisterType<QueuePublishService<JobContextDto>>().As<IQueuePublishService<JobContextDto>>().SingleInstance();
             builder.RegisterType<JsonSerializationService>().As<ISerializationService>().InstancePerLifetimeScope();
+            builder.RegisterType<DateTimeProvider>().As<IDateTimeProvider>().SingleInstance();
 
             builder.Register(c => new QueuePublishService<AuditingDto>(
                     c.Resolve<AuditQueueConfiguration>(),
