@@ -61,10 +61,11 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                     SupportsParallelExecution = false
                 }
             };
-            var topics = new List<ITopicItem>()
+            var topics = new List<TopicItem>()
             {
                 new TopicItem("validation", "validation", tasks),
-                new TopicItem("fundingcalc-init", "fundingcalc-init", tasks)
+                new TopicItem("FundingCalc", "FundingCalc", tasks),
+                new TopicItem("data-store", "data-store", tasks),
             };
 
             var message = new JobContextMessage(job.JobId, topics, job.Ukprn.ToString(), job.StorageReference, job.FileName, null, 0, job.DateTimeSubmittedUtc);
