@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ESFA.DC.Auditing.Interface;
 using ESFA.DC.IO.Interfaces;
 using ESFA.DC.JobContext;
+using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.JobQueueManager.Models;
 using ESFA.DC.JobQueueManager.Models.Enums;
@@ -13,14 +15,14 @@ namespace ESFA.DC.JobScheduler.QueueHandler
 {
     public class QueueHandler : IQueueHandler
     {
-        private readonly IKeyValuePersistenceService _keyValuePersistenceService;
+        private readonly IJobSchedulerStatusManager _jobSchedulerStatusManager;
         private readonly IMessagingService _messagingService;
         private readonly IJobQueueManager _jobQueueManager;
         private readonly IAuditor _auditor;
 
-        public QueueHandler(IMessagingService messagingService, IJobQueueManager jobQueueManager, IAuditor auditor, IKeyValuePersistenceService keyValuePersistenceService)
+        public QueueHandler(IMessagingService messagingService, IJobQueueManager jobQueueManager, IAuditor auditor, IJobSchedulerStatusManager jobSchedulerStatusManager)
         {
-            _keyValuePersistenceService = keyValuePersistenceService;
+            _jobSchedulerStatusManager = jobSchedulerStatusManager;
             _jobQueueManager = jobQueueManager;
             _messagingService = messagingService;
             _auditor = auditor;
@@ -30,22 +32,17 @@ namespace ESFA.DC.JobScheduler.QueueHandler
         {
             while (true)
             {
-                if (await IsJobQueueProcessingEnabled())
+                if (await _jobSchedulerStatusManager.IsJobQueueProcessingEnabledAsync())
                 {
-                    if (_jobQueueManager.AnyInProgressReferenceJob())
-                    {
-                        continue;
-                    }
-
                     var job = _jobQueueManager.GetJobByPriority();
 
                     if (job != null)
                     {
-                        await MoveJobForProcessing(job);
+                       await MoveJobForProcessing(job);
                     }
                 }
 
-                Thread.Sleep(50000);
+                Thread.Sleep(1000);
             }
         }
 
@@ -56,7 +53,24 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                 return;
             }
 
-            var message = new JobContextMessage(job.JobId, null, job.Ukprn.ToString(), job.StorageReference, job.FileName, null, 0, job.DateTimeSubmittedUtc);
+            var tasks = new List<ITaskItem>()
+            {
+                new TaskItem()
+                {
+                    Tasks = new List<string>() { string.Empty },
+                    SupportsParallelExecution = false
+                }
+            };
+            var topics = new List<TopicItem>()
+            {
+                new TopicItem("validation", "validation", tasks),
+                new TopicItem("FundingCalc", "FundingCalc", tasks),
+                new TopicItem("data-store", "data-store", tasks),
+            };
+
+            var message = new JobContextMessage(job.JobId, topics, job.Ukprn.ToString(), job.StorageReference, job.FileName, null, 0, job.DateTimeSubmittedUtc);
+            //TODO: This is not right place and size is a fake one too...
+            message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, 5000);
             try
             {
                 var jobStatusUpdated = _jobQueueManager.UpdateJobStatus(job.JobId, JobStatus.MovedForProcessing);
@@ -66,6 +80,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                     try
                     {
                         await _messagingService.SendMessagesAsync(message);
+                        await _auditor.AuditAsync(message, AuditEventType.JobSubmitted);
                     }
                     catch (Exception ex)
                     {
@@ -76,25 +91,13 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                 }
                 else
                 {
-                    await _auditor.AuditAsync(message, AuditEventType.ServiceFailed, "Failed to update job status, no message is added to the service bus queue");
+                    await _auditor.AuditAsync(message, AuditEventType.JobFailed, "Failed to update job status, no message is added to the service bus queue");
                 }
             }
             catch (Exception exception)
             {
                 await _auditor.AuditAsync(message, AuditEventType.ServiceFailed, $"Failed to update job status with exception : {exception}");
             }
-        }
-
-        public async Task<bool> IsJobQueueProcessingEnabled()
-        {
-            var isKeyAdded = await _keyValuePersistenceService.ContainsAsync("JobScheduler");
-            if (!isKeyAdded)
-            {
-                return true;
-            }
-
-            var keyValue = await _keyValuePersistenceService.GetAsync("JobScheduler");
-            return keyValue == "1";
         }
     }
 }

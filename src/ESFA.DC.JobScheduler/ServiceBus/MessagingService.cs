@@ -1,42 +1,35 @@
 ﻿using System;
+using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using ESFA.DC.JobContext;
 using ESFA.DC.Queueing.Interface;
-using Microsoft.ServiceBus.Messaging;
+using Microsoft.Azure.ServiceBus;
 using Polly;
+using Polly.Registry;
 
 namespace ESFA.DC.JobScheduler.ServiceBus
 {
     public class MessagingService : IMessagingService
     {
-        private readonly IQueuePublishService<JobContextMessage> _queuePublishService;
+        private readonly IQueuePublishService<JobContextDto> _queuePublishService;
+        private readonly IReadOnlyPolicyRegistry<string> _pollyRegistry;
+        private readonly JobContextMapper _jobContextMapper;
 
-        public MessagingService(IQueuePublishService<JobContextMessage> queuePublishService)
+        public MessagingService(IQueuePublishService<JobContextDto> queuePublishService, IReadOnlyPolicyRegistry<string> pollyRegistry, JobContextMapper jobContextMapper)
         {
             _queuePublishService = queuePublishService;
+            _pollyRegistry = pollyRegistry;
+            _jobContextMapper = jobContextMapper;
         }
 
         public async Task SendMessagesAsync(JobContextMessage message)
         {
-            var retryPolicy = Policy
-                .Handle<MessagingEntityNotFoundException>()
-                .Or<ServerBusyException>()
-                //.Or<ServiceBusCommunicationException>()
-                .Or<TimeoutException>()
-                .Or<TransactionInDoubtException>()
-                .Or<QuotaExceededException>()
-                .WaitAndRetryAsync(3, i => TimeSpan.FromSeconds(5), (exc, span) => LogException(exc));
-
-            await retryPolicy.ExecuteAsync(async () =>
+            var policy = _pollyRegistry.Get<IAsyncPolicy>("ServiceBusRetryPolicy");
+            await policy.ExecuteAsync(async () =>
                 {
-                    await _queuePublishService.PublishAsync(message);
+                    await _queuePublishService.PublishAsync(_jobContextMapper.MapFrom(message));
                 });
-        }
-
-        private void LogException(Exception ex)
-        {
-            //TODO: log error
         }
     }
 }

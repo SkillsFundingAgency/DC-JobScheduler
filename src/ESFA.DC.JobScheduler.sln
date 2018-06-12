@@ -5,7 +5,13 @@ VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ESFA.DC.JobScheduler.Console", "ESFA.DC.JobScheduler.Console\ESFA.DC.JobScheduler.Console.csproj", "{2E03961A-E98E-4283-92FF-B47EBA602584}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESFA.DC.JobScheduler", "ESFA.DC.JobScheduler\ESFA.DC.JobScheduler.csproj", "{5645D99D-ADFE-45D6-BEE7-D24AAB4B3B5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ESFA.DC.JobScheduler", "ESFA.DC.JobScheduler\ESFA.DC.JobScheduler.csproj", "{5645D99D-ADFE-45D6-BEE7-D24AAB4B3B5E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{29A1095E-6F47-4346-BAAC-93BC05E68BAB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ESFA.DC.JobScheduler.Tests", "ESFA.DC.JobScheduler.Tests\ESFA.DC.JobScheduler.Tests.csproj", "{7813D46E-D9E2-45F6-8BA6-D45FB50453D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESFA.DC.JobScheduler.Console.Tests", "ESFA.DC.JobScheduler.Console.Tests\ESFA.DC.JobScheduler.Console.Tests.csproj", "{C05A4AE3-8D69-476E-A16C-03D070670174}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,9 +27,21 @@ Global
 		{5645D99D-ADFE-45D6-BEE7-D24AAB4B3B5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5645D99D-ADFE-45D6-BEE7-D24AAB4B3B5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5645D99D-ADFE-45D6-BEE7-D24AAB4B3B5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7813D46E-D9E2-45F6-8BA6-D45FB50453D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7813D46E-D9E2-45F6-8BA6-D45FB50453D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7813D46E-D9E2-45F6-8BA6-D45FB50453D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7813D46E-D9E2-45F6-8BA6-D45FB50453D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C05A4AE3-8D69-476E-A16C-03D070670174}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C05A4AE3-8D69-476E-A16C-03D070670174}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C05A4AE3-8D69-476E-A16C-03D070670174}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C05A4AE3-8D69-476E-A16C-03D070670174}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7813D46E-D9E2-45F6-8BA6-D45FB50453D8} = {29A1095E-6F47-4346-BAAC-93BC05E68BAB}
+		{C05A4AE3-8D69-476E-A16C-03D070670174} = {29A1095E-6F47-4346-BAAC-93BC05E68BAB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CE2A755E-9FDF-4400-9FC3-9776BDA721AD}
