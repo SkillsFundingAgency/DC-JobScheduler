@@ -69,6 +69,8 @@ namespace ESFA.DC.JobScheduler.QueueHandler
             };
 
             var message = new JobContextMessage(job.JobId, topics, job.Ukprn.ToString(), job.StorageReference, job.FileName, null, 0, job.DateTimeSubmittedUtc);
+            //TODO: This is not right place and size is a fake one too...
+            message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, 5000);
             try
             {
                 var jobStatusUpdated = _jobQueueManager.UpdateJobStatus(job.JobId, JobStatus.MovedForProcessing);
