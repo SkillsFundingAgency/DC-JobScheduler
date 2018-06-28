@@ -30,7 +30,7 @@ namespace ESFA.DC.JobScheduler.Console.Tests
             using (var container = containerBuilder.Build())
             {
                 container.IsRegistered(typeof(IMessagingService)).Should().BeTrue();
-                container.IsRegistered(typeof(IJobQueueManager)).Should().BeTrue();
+                container.IsRegistered(typeof(IIlrJobQueueManager)).Should().BeTrue();
                 container.IsRegistered(typeof(IQueueHandler)).Should().BeTrue();
                 container.IsRegistered(typeof(IJobSchedulerStatusManager)).Should().BeTrue();
                 container.IsRegistered(typeof(IQueuePublishService<JobContextDto>)).Should().BeTrue();
