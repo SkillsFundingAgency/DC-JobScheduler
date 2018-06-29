@@ -38,7 +38,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
         {
             builder.RegisterType<JobContextMapper>().InstancePerLifetimeScope();
             builder.RegisterType<MessagingService>().As<IMessagingService>().InstancePerLifetimeScope();
-            builder.RegisterType<JobQueueManager.JobQueueManager>().As<IJobQueueManager>().InstancePerLifetimeScope();
+            builder.RegisterType<IlrJobQueueManager>().As<IIlrJobQueueManager>().InstancePerLifetimeScope();
             builder.RegisterType<QueueHandler.QueueHandler>().As<IQueueHandler>().InstancePerLifetimeScope();
             builder.RegisterType<JobSchedulerStatusManager>().As<IJobSchedulerStatusManager>().InstancePerLifetimeScope();
 

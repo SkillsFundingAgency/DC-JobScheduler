@@ -6,10 +6,14 @@ using ESFA.DC.Auditing.Interface;
 using ESFA.DC.IO.Interfaces;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
+using ESFA.DC.JobQueueManager;
 using ESFA.DC.JobQueueManager.Interfaces;
-using ESFA.DC.JobQueueManager.Models;
-using ESFA.DC.JobQueueManager.Models.Enums;
+using ESFA.DC.Jobs.Model;
+using ESFA.DC.Jobs.Model.Base;
+using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobScheduler.ServiceBus;
+using ESFA.DC.JobStatus.Interface;
+using Remotion.Linq.Clauses;
 
 namespace ESFA.DC.JobScheduler.QueueHandler
 {
@@ -17,10 +21,10 @@ namespace ESFA.DC.JobScheduler.QueueHandler
     {
         private readonly IJobSchedulerStatusManager _jobSchedulerStatusManager;
         private readonly IMessagingService _messagingService;
-        private readonly IJobQueueManager _jobQueueManager;
+        private readonly IIlrJobQueueManager _jobQueueManager;
         private readonly IAuditor _auditor;
 
-        public QueueHandler(IMessagingService messagingService, IJobQueueManager jobQueueManager, IAuditor auditor, IJobSchedulerStatusManager jobSchedulerStatusManager)
+        public QueueHandler(IMessagingService messagingService, IIlrJobQueueManager jobQueueManager, IAuditor auditor, IJobSchedulerStatusManager jobSchedulerStatusManager)
         {
             _jobSchedulerStatusManager = jobSchedulerStatusManager;
             _jobQueueManager = jobQueueManager;
@@ -38,7 +42,16 @@ namespace ESFA.DC.JobScheduler.QueueHandler
 
                     if (job != null)
                     {
-                       await MoveJobForProcessing(job);
+                        switch (job.JobType)
+                        {
+                            case JobType.IlrSubmission:
+                                await MoveIlrJobForProcessing(job);
+                                break;
+                            case JobType.ReferenceData:
+                                throw new NotImplementedException();
+                            case JobType.PeriodEnd:
+                                throw new NotImplementedException();
+                        }
                     }
                 }
 
@@ -46,7 +59,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
             }
         }
 
-        public async Task MoveJobForProcessing(Job job)
+        public async Task MoveIlrJobForProcessing(IlrJob job)
         {
             if (job == null)
             {
@@ -68,12 +81,21 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                 new TopicItem("data-store", "data-store", tasks),
             };
 
-            var message = new JobContextMessage(job.JobId, topics, job.Ukprn.ToString(), job.StorageReference, job.FileName, null, 0, job.DateTimeSubmittedUtc);
-            //TODO: This is not right place and size is a fake one too...
-            message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, 5000);
+            var message = new JobContextMessage(
+                job.JobId,
+                topics,
+                job.Ukprn.ToString(),
+                job.StorageReference,
+                job.FileName,
+                job.SubmittedBy,
+                0,
+                job.DateTimeSubmittedUtc);
+
+            message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, job.FileSize);
+
             try
             {
-                var jobStatusUpdated = _jobQueueManager.UpdateJobStatus(job.JobId, JobStatus.MovedForProcessing);
+                var jobStatusUpdated = _jobQueueManager.UpdateJobStatus(job.JobId, JobStatusType.MovedForProcessing);
 
                 if (jobStatusUpdated)
                 {
@@ -86,7 +108,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                     {
                         await _auditor.AuditAsync(message, AuditEventType.ServiceFailed, $"Failed to send message to Servie bus queue with exception : {ex}");
 
-                        _jobQueueManager.UpdateJobStatus(job.JobId, JobStatus.Failed);
+                        _jobQueueManager.UpdateJobStatus(job.JobId, JobStatusType.Failed);
                     }
                 }
                 else
@@ -98,6 +120,11 @@ namespace ESFA.DC.JobScheduler.QueueHandler
             {
                 await _auditor.AuditAsync(message, AuditEventType.ServiceFailed, $"Failed to update job status with exception : {exception}");
             }
+        }
+
+        public Task MoveReferenceJobForProcessing(IJob job)
+        {
+            throw new NotImplementedException();
         }
     }
 }
