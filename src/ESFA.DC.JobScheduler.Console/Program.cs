@@ -7,6 +7,8 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using ESFA.DC.JobScheduler.Console.Ioc;
 using ESFA.DC.JobScheduler.QueueHandler;
+using ESFA.DC.JobScheduler.Settings;
+using ESFA.DC.Queueing.Interface;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -45,6 +47,7 @@ namespace ESFA.DC.JobScheduler.Console
             using (var scope = container.BeginLifetimeScope())
             {
                 var schedular = scope.Resolve<IQueueHandler>();
+                var j = scope.Resolve<IQueueConfiguration>();
                 schedular.ProcessNextJobAsync();
             }
 

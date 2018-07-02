@@ -1,7 +1,7 @@
 ﻿using Autofac;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.JobScheduler.Console.Extensions;
-using ESFA.DC.JobScheduler.Console.Settings;
+using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.Queueing.Interface;
 using Microsoft.Extensions.Configuration;
 
@@ -19,6 +19,12 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
 
             builder.Register(c => configuration.GetConfigSection<AuditQueueConfiguration>())
                 .As<AuditQueueConfiguration>().SingleInstance();
+
+            builder.Register(c => configuration.GetConfigSection<IlrFirstStageMessageTopics>())
+                .As<IlrFirstStageMessageTopics>().SingleInstance();
+
+            builder.Register(c => configuration.GetConfigSection<IlrSecondStageMessageTopics>())
+                .As<IlrSecondStageMessageTopics>().SingleInstance();
         }
     }
 }

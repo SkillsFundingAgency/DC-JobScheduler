@@ -23,7 +23,7 @@ namespace ESFA.DC.JobScheduler.ServiceBus
             _jobContextMapper = jobContextMapper;
         }
 
-        public async Task SendMessagesAsync(JobContextMessage message)
+        public async Task SendMessagesAsync(JobContext.JobContextMessage message)
         {
             var policy = _pollyRegistry.Get<IAsyncPolicy>("ServiceBusRetryPolicy");
             await policy.ExecuteAsync(async () =>

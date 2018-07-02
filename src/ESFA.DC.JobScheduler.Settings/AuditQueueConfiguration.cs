@@ -1,9 +1,9 @@
 ﻿using ESFA.DC.Queueing.Interface;
 using Newtonsoft.Json;
 
-namespace ESFA.DC.JobScheduler.Console.Settings
+namespace ESFA.DC.JobScheduler.Settings
 {
-    public class IlrQueueConfiguration : IQueueConfiguration
+    public class AuditQueueConfiguration : IQueueConfiguration
     {
         [JsonRequired]
         public string ConnectionString { get; set; }

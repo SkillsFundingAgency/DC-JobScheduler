@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ESFA.DC.Auditing.Interface;
-using ESFA.DC.IO.Interfaces;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
-using ESFA.DC.JobQueueManager;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model;
 using ESFA.DC.Jobs.Model.Base;
 using ESFA.DC.Jobs.Model.Enums;
+using ESFA.DC.JobScheduler.JobContextMessage;
 using ESFA.DC.JobScheduler.ServiceBus;
+using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.JobStatus.Interface;
-using Remotion.Linq.Clauses;
+using ESFA.DC.Logging.Interfaces;
 
 namespace ESFA.DC.JobScheduler.QueueHandler
 {
@@ -23,36 +23,54 @@ namespace ESFA.DC.JobScheduler.QueueHandler
         private readonly IMessagingService _messagingService;
         private readonly IIlrJobQueueManager _jobQueueManager;
         private readonly IAuditor _auditor;
+        private readonly JobContextMessageFactory _jobContextMessageFactory;
+        private readonly ILogger _logger;
 
-        public QueueHandler(IMessagingService messagingService, IIlrJobQueueManager jobQueueManager, IAuditor auditor, IJobSchedulerStatusManager jobSchedulerStatusManager)
+        public QueueHandler(
+            IMessagingService messagingService,
+            IIlrJobQueueManager jobQueueManager,
+            IAuditor auditor,
+            IJobSchedulerStatusManager jobSchedulerStatusManager,
+            JobContextMessageFactory jobContextMessageFactory,
+            ILogger logger)
         {
             _jobSchedulerStatusManager = jobSchedulerStatusManager;
             _jobQueueManager = jobQueueManager;
             _messagingService = messagingService;
             _auditor = auditor;
+            _jobContextMessageFactory = jobContextMessageFactory;
+            _logger = logger;
         }
 
         public async Task ProcessNextJobAsync()
         {
             while (true)
             {
-                if (await _jobSchedulerStatusManager.IsJobQueueProcessingEnabledAsync())
+                try
                 {
-                    var job = _jobQueueManager.GetJobByPriority();
-
-                    if (job != null)
+                    if (await _jobSchedulerStatusManager.IsJobQueueProcessingEnabledAsync())
                     {
-                        switch (job.JobType)
+                        var job = _jobQueueManager.GetJobByPriority();
+
+                        if (job != null)
                         {
-                            case JobType.IlrSubmission:
-                                await MoveIlrJobForProcessing(job);
-                                break;
-                            case JobType.ReferenceData:
-                                throw new NotImplementedException();
-                            case JobType.PeriodEnd:
-                                throw new NotImplementedException();
+                            switch (job.JobType)
+                            {
+                                case JobType.IlrSubmission:
+                                    await MoveIlrJobForProcessing(job);
+                                    break;
+
+                                case JobType.ReferenceData:
+                                    throw new NotImplementedException();
+                                case JobType.PeriodEnd:
+                                    throw new NotImplementedException();
+                            }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError("Error occured in job scheduler - will continue to pick new jobs", ex);
                 }
 
                 Thread.Sleep(1000);
@@ -66,32 +84,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                 return;
             }
 
-            var tasks = new List<ITaskItem>()
-            {
-                new TaskItem()
-                {
-                    Tasks = new List<string>() { string.Empty },
-                    SupportsParallelExecution = false
-                }
-            };
-            var topics = new List<TopicItem>()
-            {
-                new TopicItem("validation", "validation", tasks),
-                new TopicItem("FundingCalc", "FundingCalc", tasks),
-                new TopicItem("data-store", "data-store", tasks),
-            };
-
-            var message = new JobContextMessage(
-                job.JobId,
-                topics,
-                job.Ukprn.ToString(),
-                job.StorageReference,
-                job.FileName,
-                job.SubmittedBy,
-                0,
-                job.DateTimeSubmittedUtc);
-
-            message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, job.FileSize);
+            var message = _jobContextMessageFactory.CreateIlrJobContextMessage(job);
 
             try
             {
