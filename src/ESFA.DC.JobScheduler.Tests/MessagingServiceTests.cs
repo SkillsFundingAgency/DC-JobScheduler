@@ -23,7 +23,7 @@ namespace ESFA.DC.JobScheduler.Tests
             var queuePublishServiceMock = new Mock<IQueuePublishService<JobContextDto>>();
             queuePublishServiceMock.Setup(x => x.PublishAsync(new JobContextDto())).Returns(Task.CompletedTask);
 
-            var message = new JobContextMessage()
+            var message = new JobContext.JobContextMessage()
             {
                 KeyValuePairs = new ConcurrentDictionary<JobContextMessageKey, object>(),
                 Topics = new List<ITopicItem>(),

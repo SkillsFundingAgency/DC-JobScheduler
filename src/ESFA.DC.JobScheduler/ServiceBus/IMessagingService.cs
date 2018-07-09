@@ -5,6 +5,6 @@ namespace ESFA.DC.JobScheduler.ServiceBus
 {
     public interface IMessagingService
     {
-        Task SendMessagesAsync(JobContextMessage message);
+        Task SendMessagesAsync(JobContext.JobContextMessage message);
     }
 }
