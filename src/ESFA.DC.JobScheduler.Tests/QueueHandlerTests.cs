@@ -50,8 +50,8 @@ namespace ESFA.DC.JobScheduler.Tests
         public void MoveJobForProcessing_Test_Null()
         {
             var jobContextMessageFactory = new JobContextMessageFactory(
-                It.IsAny<IlrFirstStageMessageTopics>(),
-                It.IsAny<IlrSecondStageMessageTopics>());
+               new IlrFirstStageMessageTopics(),
+                new IlrSecondStageMessageTopics());
 
             var jobQueueManagerMock = new Mock<IIlrJobQueueManager>();
             var queueHandler = new QueueHandler.QueueHandler(
@@ -85,8 +85,8 @@ namespace ESFA.DC.JobScheduler.Tests
                 .Returns(Task.CompletedTask);
 
             var jobContextMessageFactory = new JobContextMessageFactory(
-                It.IsAny<IlrFirstStageMessageTopics>(),
-                It.IsAny<IlrSecondStageMessageTopics>());
+                new IlrFirstStageMessageTopics(),
+                new IlrSecondStageMessageTopics());
 
             var queueHandler = new QueueHandler.QueueHandler(
                 messagingServiceMock.Object,
@@ -122,8 +122,8 @@ namespace ESFA.DC.JobScheduler.Tests
                 .Returns(Task.CompletedTask);
 
             var jobContextMessageFactory = new JobContextMessageFactory(
-                It.IsAny<IlrFirstStageMessageTopics>(),
-                It.IsAny<IlrSecondStageMessageTopics>());
+                new IlrFirstStageMessageTopics(),
+                new IlrSecondStageMessageTopics());
 
             var queueHandler = new QueueHandler.QueueHandler(
                 messagingServiceMock.Object,
