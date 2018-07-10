@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -117,6 +118,46 @@ namespace ESFA.DC.JobScheduler.Tests
             result.Any(x => x.SubscriptionName == "persist" && x.Tasks != null).Should().BeTrue();
             result.Any(x => x.SubscriptionName == "funding" && x.Tasks != null).Should().BeTrue();
             result.Any(x => x.SubscriptionName == "reports" && x.Tasks != null).Should().BeTrue();
+        }
+
+        [Fact]
+        public void AddExtraKeys_FirstStage()
+        {
+            var factory = new JobContextMessageFactory(
+                new IlrFirstStageMessageTopics(),
+                new IlrSecondStageMessageTopics());
+
+            var message = new JobContext.JobContextMessage()
+            {
+                KeyValuePairs = new ConcurrentDictionary<JobContextMessageKey, object>()
+            };
+            var ilrJob = new IlrJob()
+            {
+                IsFirstStage = true
+            };
+
+            factory.AddExtraKeys(message, ilrJob);
+            message.KeyValuePairs.ContainsKey(JobContextMessageKey.PauseWhenFinished).Should().BeTrue();
+        }
+
+        [Fact]
+        public void AddExtraKeys_SecondStage()
+        {
+            var factory = new JobContextMessageFactory(
+                new IlrFirstStageMessageTopics(),
+                new IlrSecondStageMessageTopics());
+
+            var message = new JobContext.JobContextMessage()
+            {
+                KeyValuePairs = new ConcurrentDictionary<JobContextMessageKey, object>()
+            };
+            var ilrJob = new IlrJob()
+            {
+                IsFirstStage = false
+            };
+
+            factory.AddExtraKeys(message, ilrJob);
+            message.KeyValuePairs.ContainsKey(JobContextMessageKey.PauseWhenFinished).Should().BeFalse();
         }
     }
 }

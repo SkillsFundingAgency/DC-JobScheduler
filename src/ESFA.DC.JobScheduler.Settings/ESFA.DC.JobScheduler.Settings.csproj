@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ESFA.DC.Queueing.Interface" Version="0.1.8-beta0001" />
+    <PackageReference Include="ESFA.DC.Queueing.Interface" Version="0.1.10-beta0001" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 

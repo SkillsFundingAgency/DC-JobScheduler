@@ -16,7 +16,7 @@
     <PackageReference Include="ESFA.DC.Auditing" Version="0.1.8-beta0001" />
     <PackageReference Include="ESFA.DC.Auditing.Interface" Version="0.1.4-beta0001" />
     <PackageReference Include="ESFA.DC.JobQueueManager" Version="0.1.13-beta0001" />
-    <PackageReference Include="ESFA.DC.JobStatus.Interface" Version="0.1.5-beta0001" />
+    <PackageReference Include="ESFA.DC.JobStatus.Interface" Version="0.1.6-beta0001" />
     <PackageReference Include="FluentAssertions" Version="5.4.1" />
     <PackageReference Include="Moq" Version="4.8.3" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
