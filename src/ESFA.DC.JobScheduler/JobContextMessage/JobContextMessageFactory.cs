@@ -49,9 +49,18 @@ namespace ESFA.DC.JobScheduler.JobContextMessage
                 0,
                 ilrJob.DateTimeSubmittedUtc);
 
-            message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, ilrJob.FileSize);
+            AddExtraKeys(message, ilrJob);
 
             return message;
+        }
+
+        public void AddExtraKeys(JobContext.JobContextMessage message, IlrJob job)
+        {
+            message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, job.FileSize);
+            if (job.IsFirstStage)
+            {
+                message.KeyValuePairs.Add(JobContextMessageKey.PauseWhenFinished, "1");
+            }
         }
 
         public List<TopicItem> CreateIlrTopicsList(bool isFirstStage)
