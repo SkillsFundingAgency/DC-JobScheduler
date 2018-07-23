@@ -25,9 +25,8 @@ namespace ESFA.DC.JobScheduler.Console
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory());
 
-            var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
-            if (environmentName == null || environmentName.Equals("development", StringComparison.CurrentCultureIgnoreCase))
+            var userSettingsFileName = $"appsettings.{Environment.UserName}.json";
+            if (File.Exists($"{Directory.GetCurrentDirectory()}/{userSettingsFileName}"))
             {
                 config.AddJsonFile($"appsettings.{Environment.UserName}.json");
             }
