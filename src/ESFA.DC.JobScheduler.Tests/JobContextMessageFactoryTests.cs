@@ -78,7 +78,8 @@ namespace ESFA.DC.JobScheduler.Tests
             var firstStageTopics = new IlrFirstStageMessageTopics()
             {
                 TopicValidation = "Val",
-                TopicDeds_TaskGenerateValidationReport = "val_report"
+                TopicReports = "reports",
+                TopicReports_TaskGenerateValidationReport = "task_validationreports"
             };
 
             var factory = new JobContextMessageFactory(
@@ -89,7 +90,8 @@ namespace ESFA.DC.JobScheduler.Tests
             result.Should().BeAssignableTo<IEnumerable<TopicItem>>();
             result.Count.Should().Be(2);
             result.Any(x => x.SubscriptionName == "Val" && x.Tasks != null).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "val_report" && x.Tasks != null).Should().BeTrue();
+            result.Any(x => x.SubscriptionName == "reports" && x.Tasks != null).Should().BeTrue();
+            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("task_validationreports")))).Should().BeTrue();
         }
 
         [Fact]
@@ -98,11 +100,14 @@ namespace ESFA.DC.JobScheduler.Tests
             var secondStageTopics = new IlrSecondStageMessageTopics()
             {
                 TopicValidation = "Val",
-                TopicDeds_TaskGenerateValidationReport = "val_report",
-                TopicDeds = "deds",
-                TopicDeds_TaskPersistDataToDeds = "persist",
                 TopicFunding = "funding",
-                TopicReports = "reports"
+                TopicDeds_TaskPersistDataToDeds = "task_persist",
+                TopicDeds = "deds",
+                TopicReports = "reports",
+                TopicReports_TaskGenerateValidationReport = "val_report",
+                TopicReports_TaskGenerateMainOccupancyReport = "mo_report",
+                TopicReports_TaskGenerateAllbOccupancyReport = "alb_report",
+                TopicReports_TaskGenerateFundingSummaryReport = "fs_report"
             };
 
             var factory = new JobContextMessageFactory(
@@ -111,13 +116,17 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var result = factory.CreateIlrTopicsList(false);
             result.Should().BeAssignableTo<IEnumerable<TopicItem>>();
-            result.Count.Should().Be(6);
+            result.Count.Should().Be(4);
             result.Any(x => x.SubscriptionName == "Val" && x.Tasks != null).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "val_report" && x.Tasks != null).Should().BeTrue();
+            result.Any(x => x.SubscriptionName == "reports" && x.Tasks != null).Should().BeTrue();
             result.Any(x => x.SubscriptionName == "deds" && x.Tasks != null).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "persist" && x.Tasks != null).Should().BeTrue();
+            result.Any(x => x.SubscriptionName == "deds" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("task_persist")))).Should().BeTrue();
             result.Any(x => x.SubscriptionName == "funding" && x.Tasks != null).Should().BeTrue();
             result.Any(x => x.SubscriptionName == "reports" && x.Tasks != null).Should().BeTrue();
+            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("val_report")))).Should().BeTrue();
+            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("mo_report")))).Should().BeTrue();
+            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("alb_report")))).Should().BeTrue();
+            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("fs_report")))).Should().BeTrue();
         }
 
         [Fact]

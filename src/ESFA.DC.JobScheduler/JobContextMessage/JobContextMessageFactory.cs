@@ -79,16 +79,54 @@ namespace ESFA.DC.JobScheduler.JobContextMessage
             if (isFirstStage)
             {
                 topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicValidation, _ilrFirstStageMessageTopics.TopicValidation, tasks));
-                topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicDeds_TaskGenerateValidationReport, _ilrFirstStageMessageTopics.TopicDeds_TaskGenerateValidationReport, tasks));
+                topics.Add(new TopicItem(
+                    _ilrFirstStageMessageTopics.TopicReports,
+                    _ilrFirstStageMessageTopics.TopicReports,
+                    new List<ITaskItem>()
+                    {
+                        new TaskItem()
+                        {
+                            Tasks = new List<string>()
+                            {
+                                _ilrFirstStageMessageTopics.TopicReports_TaskGenerateValidationReport
+                            },
+                            SupportsParallelExecution = false
+                        }
+                    }));
             }
             else
             {
                 topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicValidation, _ilrSecondStageMessageTopics.TopicValidation, tasks));
-                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicDeds_TaskGenerateValidationReport, _ilrSecondStageMessageTopics.TopicDeds_TaskGenerateValidationReport, tasks));
                 topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicFunding, _ilrSecondStageMessageTopics.TopicFunding, tasks));
-                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicDeds, _ilrSecondStageMessageTopics.TopicDeds, tasks));
-                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicReports, _ilrSecondStageMessageTopics.TopicReports, tasks));
-                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicDeds_TaskPersistDataToDeds, _ilrSecondStageMessageTopics.TopicDeds_TaskPersistDataToDeds, tasks));
+                topics.Add(new TopicItem(
+                    _ilrSecondStageMessageTopics.TopicDeds,
+                    _ilrSecondStageMessageTopics.TopicDeds,
+                    new List<ITaskItem>()
+                    {
+                        new TaskItem()
+                        {
+                            Tasks = new List<string>()
+                            {
+                                _ilrSecondStageMessageTopics.TopicDeds_TaskPersistDataToDeds
+                            },
+                            SupportsParallelExecution = false
+                        }
+                    }));
+
+                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicReports, _ilrSecondStageMessageTopics.TopicReports, new List<ITaskItem>()
+                {
+                    new TaskItem()
+                    {
+                        Tasks = new List<string>()
+                        {
+                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateValidationReport,
+                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAllbOccupancyReport,
+                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateFundingSummaryReport,
+                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMainOccupancyReport
+                        },
+                        SupportsParallelExecution = false
+                    }
+                }));
             }
 
             return topics;
