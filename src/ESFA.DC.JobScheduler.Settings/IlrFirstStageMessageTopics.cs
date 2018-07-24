@@ -8,6 +8,9 @@ namespace ESFA.DC.JobScheduler.Settings
         public string TopicValidation { get; set; }
 
         [JsonRequired]
-        public string TopicDeds_TaskGenerateValidationReport { get; set; }
+        public string TopicReports { get; set; }
+
+        [JsonRequired]
+        public string TopicReports_TaskGenerateValidationReport { get; set; }
     }
 }
