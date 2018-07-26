@@ -52,7 +52,6 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                     {
                         var job = _jobQueueManager.GetJobByPriority();
 
-
                         if (job != null)
                         {
                             switch (job.JobType)
