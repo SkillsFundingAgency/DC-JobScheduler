@@ -52,6 +52,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                     {
                         var job = _jobQueueManager.GetJobByPriority();
 
+
                         if (job != null)
                         {
                             switch (job.JobType)
@@ -65,6 +66,10 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                                 case JobType.PeriodEnd:
                                     throw new NotImplementedException();
                             }
+                        }
+
+                        {
+                            Console.WriteLine("Job not found");
                         }
                     }
                 }
@@ -84,11 +89,15 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                 return;
             }
 
+            Console.WriteLine($"Job id : {job.JobId} recieved");
+
             var message = _jobContextMessageFactory.CreateIlrJobContextMessage(job);
 
             try
             {
                 var jobStatusUpdated = _jobQueueManager.UpdateJobStatus(job.JobId, JobStatusType.MovedForProcessing);
+
+                Console.WriteLine($"Job id : {job.JobId} status updated");
 
                 if (jobStatusUpdated)
                 {
@@ -106,11 +115,13 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                 }
                 else
                 {
+                    Console.WriteLine($"Job id : {job.JobId} failed to send to service bus");
                     await _auditor.AuditAsync(message, AuditEventType.JobFailed, "Failed to update job status, no message is added to the service bus queue");
                 }
             }
             catch (Exception exception)
             {
+                Console.WriteLine($"Job id : {job.JobId}, error: {exception}");
                 await _auditor.AuditAsync(message, AuditEventType.ServiceFailed, $"Failed to update job status with exception : {exception}");
             }
         }
