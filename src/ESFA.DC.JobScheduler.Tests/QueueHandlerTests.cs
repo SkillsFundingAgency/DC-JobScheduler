@@ -40,7 +40,7 @@ namespace ESFA.DC.JobScheduler.Tests
                 auditorMock.Object,
                 jobSchedulerStatusManagerMock.Object,
                 jobContextMessageFactory,
-                It.IsAny<ILogger>());
+                new Mock<ILogger>().Object);
 
             Task.Factory.StartNew(() => queueHandler.ProcessNextJobAsync().ConfigureAwait(true)).Wait(TimeSpan.FromSeconds(2));
             jobQueueManagerMock.Verify(x => x.GetJobByPriority(), Times.AtLeastOnce);
@@ -94,7 +94,7 @@ namespace ESFA.DC.JobScheduler.Tests
                 auditorMock.Object,
                 It.IsAny<IJobSchedulerStatusManager>(),
                jobContextMessageFactory,
-                It.IsAny<ILogger>());
+                new Mock<ILogger>().Object);
 
             var task = queueHandler.MoveIlrJobForProcessing(job).ConfigureAwait(true);
             task.GetAwaiter().GetResult();
@@ -131,7 +131,7 @@ namespace ESFA.DC.JobScheduler.Tests
                 auditorMock.Object,
                 It.IsAny<IJobSchedulerStatusManager>(),
                 jobContextMessageFactory,
-                It.IsAny<ILogger>());
+                new Mock<ILogger>().Object);
 
             var task = queueHandler.MoveIlrJobForProcessing(job).ConfigureAwait(true);
             task.GetAwaiter().GetResult();
