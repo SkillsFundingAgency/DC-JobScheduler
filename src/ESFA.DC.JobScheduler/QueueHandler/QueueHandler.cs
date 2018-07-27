@@ -50,10 +50,13 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                 {
                     if (await _jobSchedulerStatusManager.IsJobQueueProcessingEnabledAsync())
                     {
+                        _logger.LogInfo($"Trying to get next job for processing");
                         var job = _jobQueueManager.GetJobByPriority();
 
                         if (job != null)
                         {
+                            _logger.LogInfo($"Got job id : {job.JobId}");
+
                             switch (job.JobType)
                             {
                                 case JobType.IlrSubmission:
@@ -66,9 +69,9 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                                     throw new NotImplementedException();
                             }
                         }
-
+                        else
                         {
-                            Console.WriteLine("Job not found");
+                            _logger.LogInfo("No job to process");
                         }
                     }
                 }
@@ -88,7 +91,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                 return;
             }
 
-            Console.WriteLine($"Job id : {job.JobId} recieved");
+            _logger.LogInfo($"Job id : {job.JobId} recieved for moving to queue");
 
             var message = _jobContextMessageFactory.CreateIlrJobContextMessage(job);
 
@@ -96,7 +99,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
             {
                 var jobStatusUpdated = _jobQueueManager.UpdateJobStatus(job.JobId, JobStatusType.MovedForProcessing);
 
-                Console.WriteLine($"Job id : {job.JobId} status updated");
+                _logger.LogInfo($"Job id : {job.JobId} status updated successfully");
 
                 if (jobStatusUpdated)
                 {
@@ -107,20 +110,20 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                     }
                     catch (Exception ex)
                     {
+                        _logger.LogError($"Job id : {job.JobId} sending to service bus failed", ex);
                         await _auditor.AuditAsync(message, AuditEventType.ServiceFailed, $"Failed to send message to Servie bus queue with exception : {ex}");
-
                         _jobQueueManager.UpdateJobStatus(job.JobId, JobStatusType.Failed);
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"Job id : {job.JobId} failed to send to service bus");
+                    _logger.LogWarning($"Job id : {job.JobId} failed to send to service bus");
                     await _auditor.AuditAsync(message, AuditEventType.JobFailed, "Failed to update job status, no message is added to the service bus queue");
                 }
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"Job id : {job.JobId}, error: {exception}");
+                _logger.LogError($"Job id : {job.JobId}", exception);
                 await _auditor.AuditAsync(message, AuditEventType.ServiceFailed, $"Failed to update job status with exception : {exception}");
             }
         }

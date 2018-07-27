@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using ESFA.DC.Job.WebApi.Settings;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.JobScheduler.Console.Extensions;
 using ESFA.DC.JobScheduler.Settings;
@@ -25,6 +26,9 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
 
             builder.Register(c => configuration.GetConfigSection<IlrSecondStageMessageTopics>())
                 .As<IlrSecondStageMessageTopics>().SingleInstance();
+
+            builder.Register(c => configuration.GetConfigSection<ConnectionStrings>())
+                .As<ConnectionStrings>().SingleInstance();
         }
     }
 }
