@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using ESFA.DC.Job.WebApi.Ioc;
 using ESFA.DC.JobScheduler.Console.Ioc;
 using ESFA.DC.JobScheduler.QueueHandler;
 using ESFA.DC.JobScheduler.Settings;
@@ -41,6 +42,7 @@ namespace ESFA.DC.JobScheduler.Console
             containerBuilder.RegisterModule(configurationModule);
             containerBuilder.SetupConfigurations(configurationBuilder);
             containerBuilder.RegisterModule<ServiceRegistrations>();
+            containerBuilder.RegisterModule<LoggerRegistrations>();
             var container = containerBuilder.Build();
 
             using (var scope = container.BeginLifetimeScope())
