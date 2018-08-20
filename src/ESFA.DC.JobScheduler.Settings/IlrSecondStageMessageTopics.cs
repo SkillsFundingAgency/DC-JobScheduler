@@ -30,5 +30,14 @@ namespace ESFA.DC.JobScheduler.Settings
 
         [JsonRequired]
         public string TopicReports_TaskGenerateMainOccupancyReport { get; set; }
+
+        [JsonRequired]
+        public string TopicFunding_TaskPerformALBCalculation { get; set; }
+
+        [JsonRequired]
+        public string TopicFunding_TaskPerformFM25Calculation { get; set; }
+
+        [JsonRequired]
+        public string TopicFunding_TaskPerformFM35Calculation { get; set; }
     }
 }

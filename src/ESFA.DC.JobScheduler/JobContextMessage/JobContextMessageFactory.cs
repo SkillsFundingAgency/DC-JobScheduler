@@ -97,7 +97,21 @@ namespace ESFA.DC.JobScheduler.JobContextMessage
             else
             {
                 topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicValidation, _ilrSecondStageMessageTopics.TopicValidation, tasks));
-                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicFunding, _ilrSecondStageMessageTopics.TopicFunding, tasks));
+
+                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicFunding, _ilrSecondStageMessageTopics.TopicFunding, new List<ITaskItem>()
+                {
+                    new TaskItem()
+                    {
+                        Tasks = new List<string>()
+                        {
+                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformALBCalculation,
+                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM25Calculation,
+                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM35Calculation
+                        },
+                        SupportsParallelExecution = false
+                    }
+                }));
+
                 topics.Add(new TopicItem(
                     _ilrSecondStageMessageTopics.TopicDeds,
                     _ilrSecondStageMessageTopics.TopicDeds,
