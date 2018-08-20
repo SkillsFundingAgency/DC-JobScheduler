@@ -138,7 +138,7 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var message = new JobContext.JobContextMessage()
             {
-                KeyValuePairs = new ConcurrentDictionary<JobContextMessageKey, object>()
+                KeyValuePairs = new ConcurrentDictionary<string, object>()
             };
             var ilrJob = new IlrJob()
             {
@@ -158,7 +158,7 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var message = new JobContext.JobContextMessage()
             {
-                KeyValuePairs = new ConcurrentDictionary<JobContextMessageKey, object>()
+                KeyValuePairs = new ConcurrentDictionary<string, object>()
             };
             var ilrJob = new IlrJob()
             {
