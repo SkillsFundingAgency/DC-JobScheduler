@@ -3,7 +3,7 @@ using ESFA.DC.Job.WebApi.Settings;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.JobScheduler.Console.Extensions;
 using ESFA.DC.JobScheduler.Settings;
-using ESFA.DC.Queueing.Interface;
+using ESFA.DC.Queueing.Interface.Configuration;
 using Microsoft.Extensions.Configuration;
 
 namespace ESFA.DC.JobScheduler.Console.Ioc

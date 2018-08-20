@@ -1,21 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
 using System.Transactions;
 using Autofac;
 using ESFA.DC.Auditing;
 using ESFA.DC.Auditing.Dto;
 using ESFA.DC.Auditing.Interface;
-using ESFA.DC.DateTime.Provider;
-using ESFA.DC.DateTime.Provider.Interface;
-//using ESFA.DC.Auditing;
-//using ESFA.DC.Auditing.Dto;
-//using ESFA.DC.Auditing.Interface;
-using ESFA.DC.IO.Interfaces;
+using ESFA.DC.DateTimeProvider.Interface;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobQueueManager;
-using ESFA.DC.JobQueueManager.Data;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.JobScheduler.JobContextMessage;
 using ESFA.DC.JobScheduler.QueueHandler;
@@ -45,7 +37,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
 
             builder.RegisterType<QueuePublishService<JobContextDto>>().As<IQueuePublishService<JobContextDto>>().SingleInstance();
             builder.RegisterType<JsonSerializationService>().As<ISerializationService>().InstancePerLifetimeScope();
-            builder.RegisterType<DateTimeProvider>().As<IDateTimeProvider>().SingleInstance();
+            builder.RegisterType<DateTimeProvider.DateTimeProvider>().As<IDateTimeProvider>().SingleInstance();
             builder.RegisterType<JobContextMessageFactory>().As<JobContextMessageFactory>().SingleInstance();
 
             builder.Register(c => new QueuePublishService<AuditingDto>(

@@ -25,7 +25,7 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var message = new JobContext.JobContextMessage()
             {
-                KeyValuePairs = new ConcurrentDictionary<JobContextMessageKey, object>(),
+                KeyValuePairs = new ConcurrentDictionary<string, object>(),
                 Topics = new List<ITopicItem>(),
                 JobId = 1,
             };
