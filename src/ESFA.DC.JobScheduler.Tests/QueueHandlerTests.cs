@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
 using ESFA.DC.Auditing.Interface;
-using ESFA.DC.JobContext;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model;
 using ESFA.DC.JobScheduler.JobContextMessage;
-using ESFA.DC.JobScheduler.QueueHandler;
 using ESFA.DC.JobScheduler.ServiceBus;
 using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.JobStatus.Interface;
+using ESFA.DC.KeyGenerator.Interface;
 using ESFA.DC.Logging.Interfaces;
-using FluentAssertions;
-using Microsoft.Azure.ServiceBus;
 using Moq;
 using Xunit;
 
@@ -32,10 +29,12 @@ namespace ESFA.DC.JobScheduler.Tests
             auditorMock.Setup(x => x.AuditAsync(It.IsAny<JobContext.JobContextMessage>(), AuditEventType.ServiceFailed, It.IsAny<string>())).Returns(Task.CompletedTask);
 
             var jobContextMessageFactory = new JobContextMessageFactory(
-                It.IsAny<IlrFirstStageMessageTopics>(),
-                It.IsAny<IlrSecondStageMessageTopics>());
+                new Mock<IlrFirstStageMessageTopics>().Object,
+                new Mock<IlrSecondStageMessageTopics>().Object,
+                new Mock<IKeyGenerator>().Object,
+                new Mock<ILogger>().Object);
             var queueHandler = new QueueHandler.QueueHandler(
-                It.IsAny<IMessagingService>(),
+                new Mock<IMessagingService>().Object,
                 jobQueueManagerMock.Object,
                 auditorMock.Object,
                 jobSchedulerStatusManagerMock.Object,
@@ -50,8 +49,10 @@ namespace ESFA.DC.JobScheduler.Tests
         public void MoveJobForProcessing_Test_Null()
         {
             var jobContextMessageFactory = new JobContextMessageFactory(
-               new IlrFirstStageMessageTopics(),
-                new IlrSecondStageMessageTopics());
+                new Mock<IlrFirstStageMessageTopics>().Object,
+                new Mock<IlrSecondStageMessageTopics>().Object,
+                new Mock<IKeyGenerator>().Object,
+                new Mock<ILogger>().Object);
 
             var jobQueueManagerMock = new Mock<IIlrJobQueueManager>();
             var queueHandler = new QueueHandler.QueueHandler(
@@ -85,8 +86,10 @@ namespace ESFA.DC.JobScheduler.Tests
                 .Returns(Task.CompletedTask);
 
             var jobContextMessageFactory = new JobContextMessageFactory(
-                new IlrFirstStageMessageTopics(),
-                new IlrSecondStageMessageTopics());
+                new Mock<IlrFirstStageMessageTopics>().Object,
+                new Mock<IlrSecondStageMessageTopics>().Object,
+                new Mock<IKeyGenerator>().Object,
+                new Mock<ILogger>().Object);
 
             var queueHandler = new QueueHandler.QueueHandler(
                 messagingServiceMock.Object,
@@ -122,8 +125,10 @@ namespace ESFA.DC.JobScheduler.Tests
                 .Returns(Task.CompletedTask);
 
             var jobContextMessageFactory = new JobContextMessageFactory(
-                new IlrFirstStageMessageTopics(),
-                new IlrSecondStageMessageTopics());
+                new Mock<IlrFirstStageMessageTopics>().Object,
+                new Mock<IlrSecondStageMessageTopics>().Object,
+                new Mock<IKeyGenerator>().Object,
+                new Mock<ILogger>().Object);
 
             var queueHandler = new QueueHandler.QueueHandler(
                 messagingServiceMock.Object,

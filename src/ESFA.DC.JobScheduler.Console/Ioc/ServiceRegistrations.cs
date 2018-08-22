@@ -13,6 +13,7 @@ using ESFA.DC.JobScheduler.JobContextMessage;
 using ESFA.DC.JobScheduler.QueueHandler;
 using ESFA.DC.JobScheduler.ServiceBus;
 using ESFA.DC.JobScheduler.Settings;
+using ESFA.DC.KeyGenerator.Interface;
 using ESFA.DC.Logging.Interfaces;
 using ESFA.DC.Queueing;
 using ESFA.DC.Queueing.Interface;
@@ -38,6 +39,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.RegisterType<QueuePublishService<JobContextDto>>().As<IQueuePublishService<JobContextDto>>().SingleInstance();
             builder.RegisterType<JsonSerializationService>().As<ISerializationService>().InstancePerLifetimeScope();
             builder.RegisterType<DateTimeProvider.DateTimeProvider>().As<IDateTimeProvider>().SingleInstance();
+            builder.RegisterType<KeyGenerator.KeyGenerator>().As<IKeyGenerator>().SingleInstance();
             builder.RegisterType<JobContextMessageFactory>().As<JobContextMessageFactory>().SingleInstance();
 
             builder.Register(c => new QueuePublishService<AuditingDto>(

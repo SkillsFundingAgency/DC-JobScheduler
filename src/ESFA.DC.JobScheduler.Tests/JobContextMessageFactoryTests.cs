@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.Jobs.Model;
@@ -10,6 +9,8 @@ using ESFA.DC.Jobs.Model.Base;
 using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobScheduler.JobContextMessage;
 using ESFA.DC.JobScheduler.Settings;
+using ESFA.DC.KeyGenerator.Interface;
+using ESFA.DC.Logging.Interfaces;
 using FluentAssertions;
 using Moq;
 using Xunit;
@@ -22,8 +23,10 @@ namespace ESFA.DC.JobScheduler.Tests
         public void CreateJobContextMessage_Test_Exception()
         {
             var factory = new JobContextMessageFactory(
-                It.IsAny<IlrFirstStageMessageTopics>(),
-                It.IsAny<IlrSecondStageMessageTopics>());
+                new Mock<IlrFirstStageMessageTopics>().Object,
+                new Mock<IlrSecondStageMessageTopics>().Object,
+                new Mock<IKeyGenerator>().Object,
+                new Mock<ILogger>().Object);
 
             var ilrMock = new Mock<IJob>();
             ilrMock.SetupGet(x => x.JobType).Returns(JobType.PeriodEnd);
@@ -34,8 +37,10 @@ namespace ESFA.DC.JobScheduler.Tests
         public void CreateJobContextMessage_Test_IlrJob()
         {
             var factory = new JobContextMessageFactory(
-                new IlrFirstStageMessageTopics(),
-                new IlrSecondStageMessageTopics());
+                new Mock<IlrFirstStageMessageTopics>().Object,
+                new Mock<IlrSecondStageMessageTopics>().Object,
+                new Mock<IKeyGenerator>().Object,
+                new Mock<ILogger>().Object);
 
             var ilrJob = new IlrJob();
 
@@ -47,8 +52,10 @@ namespace ESFA.DC.JobScheduler.Tests
         public void CreateIlrJobContextMessage_Test()
         {
             var factory = new JobContextMessageFactory(
-                new IlrFirstStageMessageTopics(),
-                new IlrSecondStageMessageTopics());
+                new Mock<IlrFirstStageMessageTopics>().Object,
+                new Mock<IlrSecondStageMessageTopics>().Object,
+                new Mock<IKeyGenerator>().Object,
+                new Mock<ILogger>().Object);
 
             var ilrJob = new IlrJob()
             {
@@ -84,7 +91,9 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var factory = new JobContextMessageFactory(
                 firstStageTopics,
-                new IlrSecondStageMessageTopics());
+                new Mock<IlrSecondStageMessageTopics>().Object,
+                new Mock<IKeyGenerator>().Object,
+                new Mock<ILogger>().Object);
 
             var result = factory.CreateIlrTopicsList(true);
             result.Should().BeAssignableTo<IEnumerable<TopicItem>>();
@@ -111,8 +120,10 @@ namespace ESFA.DC.JobScheduler.Tests
             };
 
             var factory = new JobContextMessageFactory(
-                new IlrFirstStageMessageTopics(),
-                secondStageTopics);
+                new Mock<IlrFirstStageMessageTopics>().Object,
+                secondStageTopics,
+                new Mock<IKeyGenerator>().Object,
+                new Mock<ILogger>().Object);
 
             var result = factory.CreateIlrTopicsList(false);
             result.Should().BeAssignableTo<IEnumerable<TopicItem>>();
@@ -134,7 +145,9 @@ namespace ESFA.DC.JobScheduler.Tests
         {
             var factory = new JobContextMessageFactory(
                 new IlrFirstStageMessageTopics(),
-                new IlrSecondStageMessageTopics());
+                new IlrSecondStageMessageTopics(),
+                new Mock<IKeyGenerator>().Object,
+                new Mock<ILogger>().Object);
 
             var message = new JobContext.JobContextMessage()
             {
@@ -154,7 +167,9 @@ namespace ESFA.DC.JobScheduler.Tests
         {
             var factory = new JobContextMessageFactory(
                 new IlrFirstStageMessageTopics(),
-                new IlrSecondStageMessageTopics());
+                new IlrSecondStageMessageTopics(),
+                new Mock<IKeyGenerator>().Object,
+                new Mock<ILogger>().Object);
 
             var message = new JobContext.JobContextMessage()
             {

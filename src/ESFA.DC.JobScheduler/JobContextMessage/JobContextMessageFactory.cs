@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.Jobs.Model;
 using ESFA.DC.Jobs.Model.Base;
 using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobScheduler.Settings;
+using ESFA.DC.KeyGenerator.Interface;
+using ESFA.DC.Logging.Interfaces;
 
 namespace ESFA.DC.JobScheduler.JobContextMessage
 {
@@ -15,13 +15,19 @@ namespace ESFA.DC.JobScheduler.JobContextMessage
     {
         private readonly IlrFirstStageMessageTopics _ilrFirstStageMessageTopics;
         private readonly IlrSecondStageMessageTopics _ilrSecondStageMessageTopics;
+        private readonly IKeyGenerator _keyGenerator;
+        private readonly ILogger _logger;
 
         public JobContextMessageFactory(
             IlrFirstStageMessageTopics ilrFirstStageMessageTopics,
-            IlrSecondStageMessageTopics ilrSecondStageMessageTopics)
+            IlrSecondStageMessageTopics ilrSecondStageMessageTopics,
+            IKeyGenerator keyGenerator,
+            ILogger logger)
         {
             _ilrFirstStageMessageTopics = ilrFirstStageMessageTopics;
             _ilrSecondStageMessageTopics = ilrSecondStageMessageTopics;
+            _keyGenerator = keyGenerator;
+            _logger = logger;
         }
 
         public JobContext.JobContextMessage CreateJobContextMessage(IJob job)
@@ -57,10 +63,25 @@ namespace ESFA.DC.JobScheduler.JobContextMessage
         public void AddExtraKeys(JobContext.JobContextMessage message, IlrJob job)
         {
             message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, job.FileSize);
+
             if (job.IsFirstStage)
             {
                 message.KeyValuePairs.Add(JobContextMessageKey.PauseWhenFinished, "1");
             }
+
+            if (!job.Ukprn.HasValue)
+            {
+                _logger.LogWarning("Can't get UKPRN, so unable to populate ILR keys");
+                return;
+            }
+
+            message.KeyValuePairs.Add(JobContextMessageKey.InvalidLearnRefNumbers, _keyGenerator.GenerateKey(job.Ukprn.Value, job.JobId, TaskKeys.ValidationInvalidLearners));
+            message.KeyValuePairs.Add(JobContextMessageKey.ValidLearnRefNumbers, _keyGenerator.GenerateKey(job.Ukprn.Value, job.JobId, TaskKeys.ValidationValidLearners));
+            message.KeyValuePairs.Add(JobContextMessageKey.ValidationErrors, _keyGenerator.GenerateKey(job.Ukprn.Value, job.JobId, TaskKeys.ValidationErrors));
+            message.KeyValuePairs.Add(JobContextMessageKey.ValidationErrorLookups, _keyGenerator.GenerateKey(job.Ukprn.Value, job.JobId, TaskKeys.ValidationErrorsLookup));
+            message.KeyValuePairs.Add(JobContextMessageKey.FundingAlbOutput, _keyGenerator.GenerateKey(job.Ukprn.Value, job.JobId, TaskKeys.FundingAlbOutput));
+            message.KeyValuePairs.Add(JobContextMessageKey.FundingFm35Output, _keyGenerator.GenerateKey(job.Ukprn.Value, job.JobId, TaskKeys.FundingFm35Output));
+            message.KeyValuePairs.Add(JobContextMessageKey.FundingFm25Output, _keyGenerator.GenerateKey(job.Ukprn.Value, job.JobId, TaskKeys.FundingFm25Output));
         }
 
         public List<TopicItem> CreateIlrTopicsList(bool isFirstStage)
