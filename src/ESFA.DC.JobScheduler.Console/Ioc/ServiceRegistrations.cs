@@ -7,6 +7,8 @@ using ESFA.DC.Auditing.Dto;
 using ESFA.DC.Auditing.Interface;
 using ESFA.DC.DateTimeProvider.Interface;
 using ESFA.DC.JobContext;
+using ESFA.DC.JobNotifications;
+using ESFA.DC.JobNotifications.Interfaces;
 using ESFA.DC.JobQueueManager;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.JobScheduler.JobContextMessage;
@@ -41,6 +43,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.RegisterType<DateTimeProvider.DateTimeProvider>().As<IDateTimeProvider>().SingleInstance();
             builder.RegisterType<KeyGenerator.KeyGenerator>().As<IKeyGenerator>().SingleInstance();
             builder.RegisterType<JobContextMessageFactory>().As<JobContextMessageFactory>().SingleInstance();
+            builder.RegisterType<EmailNotifier>().As<IEmailNotifier>().InstancePerLifetimeScope();
 
             builder.Register(c => new QueuePublishService<AuditingDto>(
                     c.Resolve<AuditQueueConfiguration>(),
