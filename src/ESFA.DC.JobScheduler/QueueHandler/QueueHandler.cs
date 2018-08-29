@@ -50,7 +50,6 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                 {
                     if (await _jobSchedulerStatusManager.IsJobQueueProcessingEnabledAsync())
                     {
-                        _logger.LogInfo($"Trying to get next job for processing");
                         var job = _jobQueueManager.GetJobByPriority();
 
                         if (job != null)
@@ -68,10 +67,6 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                                 case JobType.PeriodEnd:
                                     throw new NotImplementedException();
                             }
-                        }
-                        else
-                        {
-                            _logger.LogInfo("No job to process");
                         }
                     }
                 }
