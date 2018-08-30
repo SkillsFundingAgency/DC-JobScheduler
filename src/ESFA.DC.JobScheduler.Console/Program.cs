@@ -40,7 +40,6 @@ namespace ESFA.DC.JobScheduler.Console
             using (var scope = container.BeginLifetimeScope())
             {
                 var schedular = scope.Resolve<IQueueHandler>();
-                var j = scope.Resolve<IQueueConfiguration>();
                 schedular.ProcessNextJobAsync();
             }
 
