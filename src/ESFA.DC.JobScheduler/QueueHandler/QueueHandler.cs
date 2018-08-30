@@ -1,100 +1,136 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ESFA.DC.Auditing.Interface;
-using ESFA.DC.IO.Interfaces;
 using ESFA.DC.JobContext;
+using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
-using ESFA.DC.JobQueueManager.Models;
-using ESFA.DC.JobQueueManager.Models.Enums;
+using ESFA.DC.Jobs.Model;
+using ESFA.DC.Jobs.Model.Base;
+using ESFA.DC.Jobs.Model.Enums;
+using ESFA.DC.JobScheduler.JobContextMessage;
 using ESFA.DC.JobScheduler.ServiceBus;
+using ESFA.DC.JobScheduler.Settings;
+using ESFA.DC.JobStatus.Interface;
+using ESFA.DC.Logging.Interfaces;
 
 namespace ESFA.DC.JobScheduler.QueueHandler
 {
     public class QueueHandler : IQueueHandler
     {
-        private readonly IKeyValuePersistenceService _keyValuePersistenceService;
+        private readonly IJobSchedulerStatusManager _jobSchedulerStatusManager;
         private readonly IMessagingService _messagingService;
-        private readonly IJobQueueManager _jobQueueManager;
+        private readonly IIlrJobQueueManager _jobQueueManager;
         private readonly IAuditor _auditor;
+        private readonly JobContextMessageFactory _jobContextMessageFactory;
+        private readonly ILogger _logger;
 
-        public QueueHandler(IMessagingService messagingService, IJobQueueManager jobQueueManager, IAuditor auditor, IKeyValuePersistenceService keyValuePersistenceService)
+        public QueueHandler(
+            IMessagingService messagingService,
+            IIlrJobQueueManager jobQueueManager,
+            IAuditor auditor,
+            IJobSchedulerStatusManager jobSchedulerStatusManager,
+            JobContextMessageFactory jobContextMessageFactory,
+            ILogger logger)
         {
-            _keyValuePersistenceService = keyValuePersistenceService;
+            _jobSchedulerStatusManager = jobSchedulerStatusManager;
             _jobQueueManager = jobQueueManager;
             _messagingService = messagingService;
             _auditor = auditor;
+            _jobContextMessageFactory = jobContextMessageFactory;
+            _logger = logger;
         }
 
         public async Task ProcessNextJobAsync()
         {
             while (true)
             {
-                if (await IsJobQueueProcessingEnabled())
+                try
                 {
-                    if (_jobQueueManager.AnyInProgressReferenceJob())
+                    if (await _jobSchedulerStatusManager.IsJobQueueProcessingEnabledAsync())
                     {
-                        continue;
-                    }
+                        _logger.LogInfo($"Trying to get next job for processing");
+                        var job = _jobQueueManager.GetJobByPriority();
 
-                    var job = _jobQueueManager.GetJobByPriority();
+                        if (job != null)
+                        {
+                            _logger.LogInfo($"Got job id : {job.JobId}");
 
-                    if (job != null)
-                    {
-                        await MoveJobForProcessing(job);
+                            switch (job.JobType)
+                            {
+                                case JobType.IlrSubmission:
+                                    await MoveIlrJobForProcessing(job);
+                                    break;
+
+                                case JobType.ReferenceData:
+                                    throw new NotImplementedException();
+                                case JobType.PeriodEnd:
+                                    throw new NotImplementedException();
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogInfo("No job to process");
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    _logger.LogError("Error occured in job scheduler - will continue to pick new jobs", ex);
+                }
 
-                Thread.Sleep(50000);
+                Thread.Sleep(1000);
             }
         }
 
-        public async Task MoveJobForProcessing(Job job)
+        public async Task MoveIlrJobForProcessing(IlrJob job)
         {
             if (job == null)
             {
                 return;
             }
 
-            var message = new JobContextMessage(job.JobId, null, job.Ukprn.ToString(), job.StorageReference, job.FileName, null, 0, job.DateTimeSubmittedUtc);
+            _logger.LogInfo($"Job id : {job.JobId} recieved for moving to queue");
+
+            var message = _jobContextMessageFactory.CreateIlrJobContextMessage(job);
+
             try
             {
-                var jobStatusUpdated = _jobQueueManager.UpdateJobStatus(job.JobId, JobStatus.MovedForProcessing);
+                var jobStatusUpdated = _jobQueueManager.UpdateJobStatus(job.JobId, JobStatusType.MovedForProcessing);
+
+                _logger.LogInfo($"Job id : {job.JobId} status updated successfully");
 
                 if (jobStatusUpdated)
                 {
                     try
                     {
                         await _messagingService.SendMessagesAsync(message);
+                        await _auditor.AuditAsync(message, AuditEventType.JobSubmitted);
                     }
                     catch (Exception ex)
                     {
+                        _logger.LogError($"Job id : {job.JobId} sending to service bus failed", ex);
                         await _auditor.AuditAsync(message, AuditEventType.ServiceFailed, $"Failed to send message to Servie bus queue with exception : {ex}");
-
-                        _jobQueueManager.UpdateJobStatus(job.JobId, JobStatus.Failed);
+                        _jobQueueManager.UpdateJobStatus(job.JobId, JobStatusType.Failed);
                     }
                 }
                 else
                 {
-                    await _auditor.AuditAsync(message, AuditEventType.ServiceFailed, "Failed to update job status, no message is added to the service bus queue");
+                    _logger.LogWarning($"Job id : {job.JobId} failed to send to service bus");
+                    await _auditor.AuditAsync(message, AuditEventType.JobFailed, "Failed to update job status, no message is added to the service bus queue");
                 }
             }
             catch (Exception exception)
             {
+                _logger.LogError($"Job id : {job.JobId}", exception);
                 await _auditor.AuditAsync(message, AuditEventType.ServiceFailed, $"Failed to update job status with exception : {exception}");
             }
         }
 
-        public async Task<bool> IsJobQueueProcessingEnabled()
+        public Task MoveReferenceJobForProcessing(IJob job)
         {
-            var isKeyAdded = await _keyValuePersistenceService.ContainsAsync("JobScheduler");
-            if (!isKeyAdded)
-            {
-                return true;
-            }
-
-            var keyValue = await _keyValuePersistenceService.GetAsync("JobScheduler");
-            return keyValue == "1";
+            throw new NotImplementedException();
         }
     }
 }

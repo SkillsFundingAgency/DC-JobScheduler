@@ -13,27 +13,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="ESFA.DC.JobQueueManager.Interfaces">
-      <HintPath>..\..\..\DC-JobQueueManager\src\DC.JobQueueManager\bin\Debug\netstandard2.0\ESFA.DC.JobQueueManager.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="ESFA.DC.JobQueueManager.Models">
-      <HintPath>..\..\..\DC-JobQueueManager\src\DC.JobQueueManager\bin\Debug\netstandard2.0\ESFA.DC.JobQueueManager.Models.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="JobManager\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="ESFA.DC.Auditing.Interface" Version="0.1.0-beta0001" />
-    <PackageReference Include="ESFA.DC.IO.Interfaces" Version="0.1.2-beta0001" />
-    <PackageReference Include="ESFA.DC.JobContext" Version="0.1.1-beta0001" />
-    <PackageReference Include="ESFA.DC.JobContext.Interface" Version="0.1.0-beta0001" />
-    <PackageReference Include="ESFA.DC.Queueing.Interface" Version="0.1.1-beta0001" />
+    <PackageReference Include="ESFA.DC.Auditing.Interface" Version="0.1.9-beta0001" />
+    <PackageReference Include="ESFA.DC.IO.Interfaces" Version="0.1.12-beta0001" />
+    <PackageReference Include="ESFA.DC.JobContext" Version="0.1.15-beta0001" />
+    <PackageReference Include="ESFA.DC.JobContext.Interface" Version="0.1.15-beta0001" />
+    <PackageReference Include="ESFA.DC.JobQueueManager" Version="0.1.16-beta0001" />
+    <PackageReference Include="ESFA.DC.JobStatus.Interface" Version="0.1.12-beta0001" />
+    <PackageReference Include="ESFA.DC.KeyGenerator.Interface" Version="0.1.7-beta0001" />
+    <PackageReference Include="ESFA.DC.Logging" Version="0.1.1-beta0001" />
+    <PackageReference Include="ESFA.DC.Queueing.Interface" Version="0.1.13-beta0001" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="2.0.0" />
     <PackageReference Include="Polly" Version="6.0.1" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.0-beta006" />
-    <PackageReference Include="WindowsAzure.ServiceBus" Version="4.2.2-preview" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ESFA.DC.JobScheduler.Settings\ESFA.DC.JobScheduler.Settings.csproj" />
   </ItemGroup>
 
 </Project>
