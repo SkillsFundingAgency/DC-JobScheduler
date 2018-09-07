@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ESFA.DC.Auditing.Interface;
+using ESFA.DC.Job.Models.Enums;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
-using ESFA.DC.Jobs.Model;
-using ESFA.DC.Jobs.Model.Base;
-using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobScheduler.JobContextMessage;
 using ESFA.DC.JobScheduler.ServiceBus;
 using ESFA.DC.JobScheduler.Settings;
@@ -21,14 +19,14 @@ namespace ESFA.DC.JobScheduler.QueueHandler
     {
         private readonly IJobSchedulerStatusManager _jobSchedulerStatusManager;
         private readonly IMessagingService _messagingService;
-        private readonly IIlrJobQueueManager _jobQueueManager;
+        private readonly IJobManager _jobQueueManager;
         private readonly IAuditor _auditor;
         private readonly JobContextMessageFactory _jobContextMessageFactory;
         private readonly ILogger _logger;
 
         public QueueHandler(
             IMessagingService messagingService,
-            IIlrJobQueueManager jobQueueManager,
+            IJobManager jobQueueManager,
             IAuditor auditor,
             IJobSchedulerStatusManager jobSchedulerStatusManager,
             JobContextMessageFactory jobContextMessageFactory,
@@ -59,7 +57,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
                             switch (job.JobType)
                             {
                                 case JobType.IlrSubmission:
-                                    await MoveIlrJobForProcessing(job);
+                                    await MoveFileUploadJobForProcessing(job);
                                     break;
 
                                 case JobType.ReferenceData:
@@ -79,7 +77,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
             }
         }
 
-        public async Task MoveIlrJobForProcessing(IlrJob job)
+        public async Task MoveFileUploadJobForProcessing(Job.Models.Job job)
         {
             if (job == null)
             {
@@ -88,7 +86,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
 
             _logger.LogInfo($"Job id : {job.JobId} recieved for moving to queue");
 
-            var message = _jobContextMessageFactory.CreateIlrJobContextMessage(job);
+            var message = _jobContextMessageFactory.CreateFileUploadJobContextMessage(job);
 
             try
             {
@@ -123,7 +121,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
             }
         }
 
-        public Task MoveReferenceJobForProcessing(IJob job)
+        public Task MoveReferenceJobForProcessing(Job.Models.Job job)
         {
             throw new NotImplementedException();
         }
