@@ -29,7 +29,7 @@
     <PackageReference Include="ESFA.DC.DateTimeProvider.Interface" Version="0.1.5-beta0001" />
     <PackageReference Include="ESFA.DC.JobContext" Version="0.1.15-beta0001" />
     <PackageReference Include="ESFA.DC.JobContext.Interface" Version="0.1.15-beta0001" />
-    <PackageReference Include="ESFA.DC.JobQueueManager" Version="0.1.20-beta0001" />
+    <PackageReference Include="ESFA.DC.JobQueueManager" Version="0.1.21-beta0001" />
     <PackageReference Include="ESFA.DC.KeyGenerator" Version="0.1.7-beta0001" />
     <PackageReference Include="ESFA.DC.KeyGenerator.Interface" Version="0.1.7-beta0001" />
     <PackageReference Include="ESFA.DC.Logging" Version="0.1.1-beta0001" />
