@@ -44,21 +44,21 @@ namespace ESFA.DC.JobScheduler.JobContextMessage
             }
         }
 
-        public JobContext.JobContextMessage CreateFileUploadJobContextMessage(Jobs.Model.Job ilrJob)
+        public JobContext.JobContextMessage CreateFileUploadJobContextMessage(Jobs.Model.Job fileUploadJob)
         {
-            var jobMetaData = _fileUploadJobManager.GetJob(ilrJob.JobId);
+            var jobMetaData = _fileUploadJobManager.GetJobById(fileUploadJob.JobId);
 
             var topics = CreateIlrTopicsList(jobMetaData.IsFirstStage);
 
             var message = new JobContext.JobContextMessage(
-                ilrJob.JobId,
+                fileUploadJob.JobId,
                 topics,
                 jobMetaData.Ukprn.ToString(),
                 jobMetaData.StorageReference,
                 jobMetaData.FileName,
-                ilrJob.SubmittedBy,
+                fileUploadJob.SubmittedBy,
                 0,
-                ilrJob.DateTimeSubmittedUtc);
+                fileUploadJob.DateTimeSubmittedUtc);
 
             AddExtraKeys(message, jobMetaData);
 

@@ -45,6 +45,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.RegisterType<KeyGenerator.KeyGenerator>().As<IKeyGenerator>().SingleInstance();
             builder.RegisterType<JobContextMessageFactory>().As<JobContextMessageFactory>().SingleInstance();
             builder.RegisterType<EmailNotifier>().As<IEmailNotifier>().InstancePerLifetimeScope();
+            builder.RegisterType<EmailTemplateManager>().As<IEmailTemplateManager>().InstancePerLifetimeScope();
 
             builder.Register(c => new QueuePublishService<AuditingDto>(
                     c.Resolve<AuditQueueConfiguration>(),
