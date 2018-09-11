@@ -1,6 +1,4 @@
 ﻿using System.Threading.Tasks;
-using ESFA.DC.Jobs.Model;
-using ESFA.DC.Jobs.Model.Base;
 
 namespace ESFA.DC.JobScheduler.QueueHandler
 {
@@ -8,8 +6,8 @@ namespace ESFA.DC.JobScheduler.QueueHandler
     {
         Task ProcessNextJobAsync();
 
-        Task MoveIlrJobForProcessing(IlrJob job);
+        Task MoveFileUploadJobForProcessing(Jobs.Model.Job job);
 
-        Task MoveReferenceJobForProcessing(IJob job);
+        Task MoveReferenceJobForProcessing(Jobs.Model.Job job);
     }
 }

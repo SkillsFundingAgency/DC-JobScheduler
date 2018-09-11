@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
+using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model;
-using ESFA.DC.Jobs.Model.Base;
 using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.KeyGenerator.Interface;
@@ -17,71 +17,76 @@ namespace ESFA.DC.JobScheduler.JobContextMessage
         private readonly IlrSecondStageMessageTopics _ilrSecondStageMessageTopics;
         private readonly IKeyGenerator _keyGenerator;
         private readonly ILogger _logger;
+        private readonly IFileUploadJobManager _fileUploadJobManager;
 
         public JobContextMessageFactory(
             IlrFirstStageMessageTopics ilrFirstStageMessageTopics,
             IlrSecondStageMessageTopics ilrSecondStageMessageTopics,
             IKeyGenerator keyGenerator,
-            ILogger logger)
+            ILogger logger,
+            IFileUploadJobManager fileUploadMetaDataManager)
         {
             _ilrFirstStageMessageTopics = ilrFirstStageMessageTopics;
             _ilrSecondStageMessageTopics = ilrSecondStageMessageTopics;
             _keyGenerator = keyGenerator;
             _logger = logger;
+            _fileUploadJobManager = fileUploadMetaDataManager;
         }
 
-        public JobContext.JobContextMessage CreateJobContextMessage(IJob job)
+        public JobContext.JobContextMessage CreateJobContextMessage(Jobs.Model.Job job)
         {
             switch (job.JobType)
             {
                 case JobType.IlrSubmission:
-                    return CreateIlrJobContextMessage((IlrJob)job);
+                    return CreateFileUploadJobContextMessage(job);
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        public JobContext.JobContextMessage CreateIlrJobContextMessage(IlrJob ilrJob)
+        public JobContext.JobContextMessage CreateFileUploadJobContextMessage(Jobs.Model.Job ilrJob)
         {
-            var topics = CreateIlrTopicsList(ilrJob.IsFirstStage);
+            var jobMetaData = _fileUploadJobManager.GetJob(ilrJob.JobId);
+
+            var topics = CreateIlrTopicsList(jobMetaData.IsFirstStage);
 
             var message = new JobContext.JobContextMessage(
                 ilrJob.JobId,
                 topics,
-                ilrJob.Ukprn.ToString(),
-                ilrJob.StorageReference,
-                ilrJob.FileName,
+                jobMetaData.Ukprn.ToString(),
+                jobMetaData.StorageReference,
+                jobMetaData.FileName,
                 ilrJob.SubmittedBy,
                 0,
                 ilrJob.DateTimeSubmittedUtc);
 
-            AddExtraKeys(message, ilrJob);
+            AddExtraKeys(message, jobMetaData);
 
             return message;
         }
 
-        public void AddExtraKeys(JobContext.JobContextMessage message, IlrJob job)
+        public void AddExtraKeys(JobContext.JobContextMessage message, FileUploadJob metaData)
         {
-            message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, job.FileSize);
+            message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, metaData.FileSize);
 
-            if (job.IsFirstStage)
+            if (metaData.IsFirstStage)
             {
                 message.KeyValuePairs.Add(JobContextMessageKey.PauseWhenFinished, "1");
             }
 
-            if (!job.Ukprn.HasValue)
+            if (metaData.Ukprn == 0)
             {
                 _logger.LogWarning("Can't get UKPRN, so unable to populate ILR keys");
                 return;
             }
 
-            message.KeyValuePairs.Add(JobContextMessageKey.InvalidLearnRefNumbers, _keyGenerator.GenerateKey(job.Ukprn.Value, job.JobId, TaskKeys.ValidationInvalidLearners));
-            message.KeyValuePairs.Add(JobContextMessageKey.ValidLearnRefNumbers, _keyGenerator.GenerateKey(job.Ukprn.Value, job.JobId, TaskKeys.ValidationValidLearners));
-            message.KeyValuePairs.Add(JobContextMessageKey.ValidationErrors, _keyGenerator.GenerateKey(job.Ukprn.Value, job.JobId, TaskKeys.ValidationErrors));
-            message.KeyValuePairs.Add(JobContextMessageKey.ValidationErrorLookups, _keyGenerator.GenerateKey(job.Ukprn.Value, job.JobId, TaskKeys.ValidationErrorsLookup));
-            message.KeyValuePairs.Add(JobContextMessageKey.FundingAlbOutput, _keyGenerator.GenerateKey(job.Ukprn.Value, job.JobId, TaskKeys.FundingAlbOutput));
-            message.KeyValuePairs.Add(JobContextMessageKey.FundingFm35Output, _keyGenerator.GenerateKey(job.Ukprn.Value, job.JobId, TaskKeys.FundingFm35Output));
-            message.KeyValuePairs.Add(JobContextMessageKey.FundingFm25Output, _keyGenerator.GenerateKey(job.Ukprn.Value, job.JobId, TaskKeys.FundingFm25Output));
+            message.KeyValuePairs.Add(JobContextMessageKey.InvalidLearnRefNumbers, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.ValidationInvalidLearners));
+            message.KeyValuePairs.Add(JobContextMessageKey.ValidLearnRefNumbers, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.ValidationValidLearners));
+            message.KeyValuePairs.Add(JobContextMessageKey.ValidationErrors, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.ValidationErrors));
+            message.KeyValuePairs.Add(JobContextMessageKey.ValidationErrorLookups, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.ValidationErrorsLookup));
+            message.KeyValuePairs.Add(JobContextMessageKey.FundingAlbOutput, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.FundingAlbOutput));
+            message.KeyValuePairs.Add(JobContextMessageKey.FundingFm35Output, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.FundingFm35Output));
+            message.KeyValuePairs.Add(JobContextMessageKey.FundingFm25Output, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.FundingFm25Output));
         }
 
         public List<TopicItem> CreateIlrTopicsList(bool isFirstStage)
