@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ESFA.DC.Auditing.Interface;
-using ESFA.DC.Job.Models.Enums;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
+using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobScheduler.JobContextMessage;
 using ESFA.DC.JobScheduler.ServiceBus;
 using ESFA.DC.JobScheduler.Settings;
@@ -77,7 +77,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
             }
         }
 
-        public async Task MoveFileUploadJobForProcessing(Job.Models.Job job)
+        public async Task MoveFileUploadJobForProcessing(Jobs.Model.Job job)
         {
             if (job == null)
             {
@@ -121,7 +121,7 @@ namespace ESFA.DC.JobScheduler.QueueHandler
             }
         }
 
-        public Task MoveReferenceJobForProcessing(Job.Models.Job job)
+        public Task MoveReferenceJobForProcessing(Jobs.Model.Job job)
         {
             throw new NotImplementedException();
         }

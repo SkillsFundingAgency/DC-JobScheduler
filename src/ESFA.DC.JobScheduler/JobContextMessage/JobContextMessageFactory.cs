@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using ESFA.DC.Job.Models;
-using ESFA.DC.Job.Models.Enums;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
+using ESFA.DC.Jobs.Model;
+using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.KeyGenerator.Interface;
 using ESFA.DC.Logging.Interfaces;
@@ -17,23 +17,23 @@ namespace ESFA.DC.JobScheduler.JobContextMessage
         private readonly IlrSecondStageMessageTopics _ilrSecondStageMessageTopics;
         private readonly IKeyGenerator _keyGenerator;
         private readonly ILogger _logger;
-        private readonly IFileUploadMetaDataManager _fileUploadMetaDataManager;
+        private readonly IFileUploadJobManager _fileUploadJobManager;
 
         public JobContextMessageFactory(
             IlrFirstStageMessageTopics ilrFirstStageMessageTopics,
             IlrSecondStageMessageTopics ilrSecondStageMessageTopics,
             IKeyGenerator keyGenerator,
             ILogger logger,
-            IFileUploadMetaDataManager fileUploadMetaDataManager)
+            IFileUploadJobManager fileUploadMetaDataManager)
         {
             _ilrFirstStageMessageTopics = ilrFirstStageMessageTopics;
             _ilrSecondStageMessageTopics = ilrSecondStageMessageTopics;
             _keyGenerator = keyGenerator;
             _logger = logger;
-            _fileUploadMetaDataManager = fileUploadMetaDataManager;
+            _fileUploadJobManager = fileUploadMetaDataManager;
         }
 
-        public JobContext.JobContextMessage CreateJobContextMessage(Job.Models.Job job)
+        public JobContext.JobContextMessage CreateJobContextMessage(Jobs.Model.Job job)
         {
             switch (job.JobType)
             {
@@ -44,9 +44,9 @@ namespace ESFA.DC.JobScheduler.JobContextMessage
             }
         }
 
-        public JobContext.JobContextMessage CreateFileUploadJobContextMessage(Job.Models.Job ilrJob)
+        public JobContext.JobContextMessage CreateFileUploadJobContextMessage(Jobs.Model.Job ilrJob)
         {
-            var jobMetaData = _fileUploadMetaDataManager.GetJobMetaData(ilrJob.JobId);
+            var jobMetaData = _fileUploadJobManager.GetJob(ilrJob.JobId);
 
             var topics = CreateIlrTopicsList(jobMetaData.IsFirstStage);
 
@@ -65,7 +65,7 @@ namespace ESFA.DC.JobScheduler.JobContextMessage
             return message;
         }
 
-        public void AddExtraKeys(JobContext.JobContextMessage message, FileUploadJobMetaData metaData)
+        public void AddExtraKeys(JobContext.JobContextMessage message, FileUploadJob metaData)
         {
             message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, metaData.FileSize);
 

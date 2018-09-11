@@ -6,8 +6,8 @@ namespace ESFA.DC.JobScheduler.QueueHandler
     {
         Task ProcessNextJobAsync();
 
-        Task MoveFileUploadJobForProcessing(Job.Models.Job job);
+        Task MoveFileUploadJobForProcessing(Jobs.Model.Job job);
 
-        Task MoveReferenceJobForProcessing(Job.Models.Job job);
+        Task MoveReferenceJobForProcessing(Jobs.Model.Job job);
     }
 }

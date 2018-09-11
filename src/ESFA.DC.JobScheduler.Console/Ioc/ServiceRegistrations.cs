@@ -35,7 +35,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.RegisterType<JobContextMapper>().InstancePerLifetimeScope();
             builder.RegisterType<MessagingService>().As<IMessagingService>().InstancePerLifetimeScope();
             builder.RegisterType<JobManager>().As<IJobManager>().InstancePerLifetimeScope();
-            builder.RegisterType<FileUploadMetaDataManager>().As<IFileUploadMetaDataManager>().InstancePerLifetimeScope();
+            builder.RegisterType<FileUploadJobManager>().As<IFileUploadJobManager>().InstancePerLifetimeScope();
             builder.RegisterType<QueueHandler.QueueHandler>().As<IQueueHandler>().InstancePerLifetimeScope();
             builder.RegisterType<JobSchedulerStatusManager>().As<IJobSchedulerStatusManager>().InstancePerLifetimeScope();
 
