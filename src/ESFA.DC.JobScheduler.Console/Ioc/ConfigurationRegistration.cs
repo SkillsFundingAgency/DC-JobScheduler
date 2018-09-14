@@ -2,6 +2,7 @@
 using ESFA.DC.Job.WebApi.Settings;
 using ESFA.DC.JobNotifications;
 using ESFA.DC.JobQueueManager.Interfaces;
+using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobScheduler.Console.Extensions;
 using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.Queueing.Interface.Configuration;
@@ -16,8 +17,10 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.Register(c => configuration.GetConfigSection<JobQueueManagerSettings>())
                 .As<JobQueueManagerSettings>().SingleInstance();
 
-            builder.Register(c => configuration.GetConfigSection<IlrQueueConfiguration>())
-                .As<IQueueConfiguration>().SingleInstance();
+            builder.Register(c => configuration.GetConfigSection<ServiceBusTopicConfiguration>("IlrTopicConfiguration"))
+                .Keyed<ITopicConfiguration>(JobType.IlrSubmission).SingleInstance();
+            builder.Register(c => configuration.GetConfigSection<ServiceBusTopicConfiguration>("EsfTopicConfiguration"))
+                .Keyed<ITopicConfiguration>(JobType.EsfSubmission).SingleInstance();
 
             builder.Register(c => configuration.GetConfigSection<AuditQueueConfiguration>())
                 .As<AuditQueueConfiguration>().SingleInstance();

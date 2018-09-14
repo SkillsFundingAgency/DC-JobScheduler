@@ -3,7 +3,7 @@ using System.IO;
 using Autofac;
 using ESFA.DC.Job.WebApi.Ioc;
 using ESFA.DC.JobScheduler.Console.Ioc;
-using ESFA.DC.JobScheduler.QueueHandler;
+using ESFA.DC.JobScheduler.Interfaces;
 using ESFA.DC.Queueing.Interface.Configuration;
 using Microsoft.Extensions.Configuration;
 
@@ -39,7 +39,7 @@ namespace ESFA.DC.JobScheduler.Console
 
             using (var scope = container.BeginLifetimeScope())
             {
-                var schedular = scope.Resolve<IQueueHandler>();
+                var schedular = scope.Resolve<IJobQueueHandler>();
                 schedular.ProcessNextJobAsync();
             }
 

@@ -1,18 +1,19 @@
-﻿using ESFA.DC.Queueing.Interface;
+﻿using ESFA.DC.Queueing;
+using ESFA.DC.Queueing.Interface;
 using ESFA.DC.Queueing.Interface.Configuration;
 using Newtonsoft.Json;
 
 namespace ESFA.DC.JobScheduler.Settings
 {
-    public class IlrQueueConfiguration : IQueueConfiguration
+    public class ServiceBusTopicConfiguration : ITopicConfiguration
     {
         [JsonRequired]
         public string ConnectionString { get; set; }
 
         [JsonRequired]
-        public string QueueName { get; set; }
+        public string SubscriptionName { get; set; }
 
-        public string TopicName => string.Empty;
+        public string TopicName { get; set; }
 
         public int MaxConcurrentCalls => 1;
 

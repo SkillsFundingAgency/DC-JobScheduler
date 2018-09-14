@@ -2,23 +2,26 @@
 using System.Collections.Generic;
 using System.Transactions;
 using Autofac;
+using Autofac.Features.AttributeFilters;
 using ESFA.DC.Auditing;
 using ESFA.DC.Auditing.Dto;
 using ESFA.DC.Auditing.Interface;
 using ESFA.DC.DateTimeProvider.Interface;
+using ESFA.DC.IO.Interfaces;
 using ESFA.DC.JobContext;
+using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobNotifications;
 using ESFA.DC.JobNotifications.Interfaces;
 using ESFA.DC.JobQueueManager;
 using ESFA.DC.JobQueueManager.Interfaces;
-using ESFA.DC.JobScheduler.JobContextMessage;
-using ESFA.DC.JobScheduler.QueueHandler;
-using ESFA.DC.JobScheduler.ServiceBus;
+using ESFA.DC.Jobs.Model.Enums;
+using ESFA.DC.JobScheduler.Interfaces;
 using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.KeyGenerator.Interface;
 using ESFA.DC.Logging.Interfaces;
 using ESFA.DC.Queueing;
 using ESFA.DC.Queueing.Interface;
+using ESFA.DC.Queueing.Interface.Configuration;
 using ESFA.DC.Serialization.Interfaces;
 using ESFA.DC.Serialization.Json;
 using Microsoft.Azure.ServiceBus;
@@ -36,20 +39,21 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.RegisterType<MessagingService>().As<IMessagingService>().InstancePerLifetimeScope();
             builder.RegisterType<JobManager>().As<IJobManager>().InstancePerLifetimeScope();
             builder.RegisterType<FileUploadJobManager>().As<IFileUploadJobManager>().InstancePerLifetimeScope();
-            builder.RegisterType<QueueHandler.QueueHandler>().As<IQueueHandler>().InstancePerLifetimeScope();
+            builder.RegisterType<JobQueueHandler>().As<IJobQueueHandler>().InstancePerLifetimeScope();
             builder.RegisterType<JobSchedulerStatusManager>().As<IJobSchedulerStatusManager>().InstancePerLifetimeScope();
 
-            builder.RegisterType<QueuePublishService<JobContextDto>>().As<IQueuePublishService<JobContextDto>>().SingleInstance();
-            builder.RegisterType<JsonSerializationService>().As<ISerializationService>().InstancePerLifetimeScope();
+            builder.RegisterType<JsonSerializationService>().As<IJsonSerializationService>().InstancePerLifetimeScope();
             builder.RegisterType<DateTimeProvider.DateTimeProvider>().As<IDateTimeProvider>().SingleInstance();
             builder.RegisterType<KeyGenerator.KeyGenerator>().As<IKeyGenerator>().SingleInstance();
-            builder.RegisterType<JobContextMessageFactory>().As<JobContextMessageFactory>().SingleInstance();
             builder.RegisterType<EmailNotifier>().As<IEmailNotifier>().InstancePerLifetimeScope();
             builder.RegisterType<EmailTemplateManager>().As<IEmailTemplateManager>().InstancePerLifetimeScope();
 
+            builder.RegisterType<IlrMessageFactory>().Keyed<IMessageFactory>(JobType.IlrSubmission).WithAttributeFiltering().SingleInstance();
+            builder.RegisterType<IlrMessageFactory>().Keyed<IMessageFactory>(JobType.IlrSubmission).WithAttributeFiltering().SingleInstance();
+
             builder.Register(c => new QueuePublishService<AuditingDto>(
                     c.Resolve<AuditQueueConfiguration>(),
-                    c.Resolve<ISerializationService>()))
+                    c.Resolve<IJsonSerializationService>()))
                 .As<IQueuePublishService<AuditingDto>>();
             builder.RegisterType<Auditor>().As<IAuditor>().InstancePerLifetimeScope();
 
@@ -96,6 +100,18 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
                     return registry;
                 }).As<IReadOnlyPolicyRegistry<string>>()
                 .SingleInstance();
+
+            builder.Register(context =>
+            {
+                var config = context.ResolveKeyed<ITopicConfiguration>(JobType.IlrSubmission);
+                return new TopicPublishService<JobContextDto>(config, context.Resolve<IJsonSerializationService>());
+            }).Keyed<ITopicPublishService<JobContextDto>>(JobType.IlrSubmission).InstancePerLifetimeScope();
+
+            builder.Register(context =>
+            {
+                var config = context.ResolveKeyed<ITopicConfiguration>(JobType.EsfSubmission);
+                return new TopicPublishService<JobContextDto>(config, context.Resolve<IJsonSerializationService>());
+            }).Keyed<ITopicPublishService<JobContextDto>>(JobType.EsfSubmission).InstancePerLifetimeScope();
         }
     }
 }
