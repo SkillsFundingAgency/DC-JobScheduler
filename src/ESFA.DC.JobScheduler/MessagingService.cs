@@ -18,13 +18,11 @@ namespace ESFA.DC.JobScheduler
     public class MessagingService : IMessagingService
     {
         private readonly IIndex<JobType, ITopicPublishService<JobContextDto>> _topicPublishServices;
-        private readonly IReadOnlyPolicyRegistry<string> _pollyRegistry;
         private readonly JobContextMapper _jobContextMapper;
 
-        public MessagingService(IIndex<JobType, ITopicPublishService<JobContextDto>> topicPublishServices, IReadOnlyPolicyRegistry<string> pollyRegistry, JobContextMapper jobContextMapper)
+        public MessagingService(IIndex<JobType, ITopicPublishService<JobContextDto>> topicPublishServices, JobContextMapper jobContextMapper)
         {
             _topicPublishServices = topicPublishServices;
-            _pollyRegistry = pollyRegistry;
             _jobContextMapper = jobContextMapper;
         }
 

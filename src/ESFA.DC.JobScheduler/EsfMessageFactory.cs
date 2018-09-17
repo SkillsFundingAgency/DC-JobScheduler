@@ -16,48 +16,41 @@ namespace ESFA.DC.JobScheduler
 {
     public sealed class EsfMessageFactory : IMessageFactory
     {
-        private readonly IlrFirstStageMessageTopics _ilrFirstStageMessageTopics;
-        private readonly IlrSecondStageMessageTopics _ilrSecondStageMessageTopics;
+        private readonly EsfMessageTopics _esfMessageTopics;
         private readonly IKeyGenerator _keyGenerator;
-        private readonly ILogger _logger;
         private readonly IFileUploadJobManager _fileUploadJobManager;
         private readonly ITopicConfiguration _topicConfiguration;
 
         public EsfMessageFactory(
-            IlrFirstStageMessageTopics ilrFirstStageMessageTopics,
-            IlrSecondStageMessageTopics ilrSecondStageMessageTopics,
+            EsfMessageTopics esfMessageTopics,
             IKeyGenerator keyGenerator,
             ILogger logger,
             IFileUploadJobManager fileUploadMetaDataManager,
             [KeyFilter(JobType.EsfSubmission)]ITopicConfiguration topicConfiguration)
         {
-            _ilrFirstStageMessageTopics = ilrFirstStageMessageTopics;
-            _ilrSecondStageMessageTopics = ilrSecondStageMessageTopics;
+            _esfMessageTopics = esfMessageTopics;
             _keyGenerator = keyGenerator;
-            _logger = logger;
             _fileUploadJobManager = fileUploadMetaDataManager;
             _topicConfiguration = topicConfiguration;
         }
 
-        public MessageParameters CreateMessageParameters(Jobs.Model.Job fileUploadJob)
+        public MessageParameters CreateMessageParameters(long jobId)
         {
-            var jobMetaData = _fileUploadJobManager.GetJobById(fileUploadJob.JobId);
+            var job = _fileUploadJobManager.GetJobById(jobId);
 
-            var topics = CreateIlrTopicsList(jobMetaData.IsFirstStage);
+            var topics = CreateTopicsList();
 
             var contextMessage = new JobContextMessage(
-                fileUploadJob.JobId,
+                job.JobId,
                 topics,
-                jobMetaData.Ukprn.ToString(),
-                jobMetaData.StorageReference,
-                jobMetaData.FileName,
-                fileUploadJob.SubmittedBy,
+                job.Ukprn.ToString(),
+                job.StorageReference,
+                job.FileName,
+                job.SubmittedBy,
                 0,
-                fileUploadJob.DateTimeSubmittedUtc);
+                job.DateTimeSubmittedUtc);
 
-            AddExtraKeys(contextMessage, jobMetaData);
-
-            var message = new MessageParameters(JobType.IlrSubmission)
+            var message = new MessageParameters(JobType.EsfSubmission)
             {
                 JobContextMessage = contextMessage,
                 TopicParameters = new Dictionary<string, object>
@@ -72,31 +65,7 @@ namespace ESFA.DC.JobScheduler
             return message;
         }
 
-        public void AddExtraKeys(JobContext.JobContextMessage message, FileUploadJob metaData)
-        {
-            message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, metaData.FileSize);
-
-            if (metaData.IsFirstStage)
-            {
-                message.KeyValuePairs.Add(JobContextMessageKey.PauseWhenFinished, "1");
-            }
-
-            if (metaData.Ukprn == 0)
-            {
-                _logger.LogWarning("Can't get UKPRN, so unable to populate ILR keys");
-                return;
-            }
-
-            message.KeyValuePairs.Add(JobContextMessageKey.InvalidLearnRefNumbers, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.ValidationInvalidLearners));
-            message.KeyValuePairs.Add(JobContextMessageKey.ValidLearnRefNumbers, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.ValidationValidLearners));
-            message.KeyValuePairs.Add(JobContextMessageKey.ValidationErrors, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.ValidationErrors));
-            message.KeyValuePairs.Add(JobContextMessageKey.ValidationErrorLookups, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.ValidationErrorsLookup));
-            message.KeyValuePairs.Add(JobContextMessageKey.FundingAlbOutput, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.FundingAlbOutput));
-            message.KeyValuePairs.Add(JobContextMessageKey.FundingFm35Output, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.FundingFm35Output));
-            message.KeyValuePairs.Add(JobContextMessageKey.FundingFm25Output, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.FundingFm25Output));
-        }
-
-        public List<TopicItem> CreateIlrTopicsList(bool isFirstStage)
+        public List<TopicItem> CreateTopicsList()
         {
             var topics = new List<TopicItem>();
 
@@ -109,72 +78,9 @@ namespace ESFA.DC.JobScheduler
                 }
             };
 
-            if (isFirstStage)
-            {
-                topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicValidation, _ilrFirstStageMessageTopics.TopicValidation, tasks));
-                topics.Add(new TopicItem(
-                    _ilrFirstStageMessageTopics.TopicReports,
-                    _ilrFirstStageMessageTopics.TopicReports,
-                    new List<ITaskItem>()
-                    {
-                        new TaskItem()
-                        {
-                            Tasks = new List<string>()
-                            {
-                                _ilrFirstStageMessageTopics.TopicReports_TaskGenerateValidationReport
-                            },
-                            SupportsParallelExecution = false
-                        }
-                    }));
-            }
-            else
-            {
-                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicValidation, _ilrSecondStageMessageTopics.TopicValidation, tasks));
-
-                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicFunding, _ilrSecondStageMessageTopics.TopicFunding, new List<ITaskItem>()
-                {
-                    new TaskItem()
-                    {
-                        Tasks = new List<string>()
-                        {
-                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformALBCalculation,
-                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM25Calculation,
-                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM35Calculation
-                        },
-                        SupportsParallelExecution = false
-                    }
-                }));
-
-                topics.Add(new TopicItem(
-                    _ilrSecondStageMessageTopics.TopicDeds,
-                    _ilrSecondStageMessageTopics.TopicDeds,
-                    new List<ITaskItem>()
-                    {
-                        new TaskItem()
-                        {
-                            Tasks = new List<string>()
-                            {
-                                _ilrSecondStageMessageTopics.TopicDeds_TaskPersistDataToDeds
-                            },
-                            SupportsParallelExecution = false
-                        }
-                    }));
-
-                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicReports, _ilrSecondStageMessageTopics.TopicReports, new List<ITaskItem>()
-                {
-                    new TaskItem()
-                    {
-                        Tasks = new List<string>()
-                        {
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateValidationReport,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAllbOccupancyReport,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateFundingSummaryReport,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMainOccupancyReport
-                        },
-                        SupportsParallelExecution = false
-                    }
-                }));
-            }
+            topics.Add(new TopicItem(_esfMessageTopics.TopicValidation, _esfMessageTopics.TopicValidation, tasks));
+            topics.Add(new TopicItem(_esfMessageTopics.TopicFunding, _esfMessageTopics.TopicFunding, tasks));
+            topics.Add(new TopicItem(_esfMessageTopics.TopicReports, _esfMessageTopics.TopicReports, tasks));
 
             return topics;
         }

@@ -30,6 +30,8 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
 
             builder.Register(c => configuration.GetConfigSection<IlrSecondStageMessageTopics>())
                 .As<IlrSecondStageMessageTopics>().SingleInstance();
+            builder.Register(c => configuration.GetConfigSection<EsfMessageTopics>())
+                .As<EsfMessageTopics>().SingleInstance();
 
             builder.Register(c => configuration.GetConfigSection<ConnectionStrings>())
                 .As<ConnectionStrings>().SingleInstance();

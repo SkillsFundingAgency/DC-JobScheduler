@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.Jobs.Model.Enums;
 
@@ -9,6 +10,7 @@ namespace ESFA.DC.JobScheduler.Interfaces.Models
         public MessageParameters(JobType jobType)
         {
             JobType = jobType;
+            JobContextMessage = new JobContextMessage();
         }
 
         public IJobContextMessage JobContextMessage { get; set; }

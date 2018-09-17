@@ -49,7 +49,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.RegisterType<EmailTemplateManager>().As<IEmailTemplateManager>().InstancePerLifetimeScope();
 
             builder.RegisterType<IlrMessageFactory>().Keyed<IMessageFactory>(JobType.IlrSubmission).WithAttributeFiltering().SingleInstance();
-            builder.RegisterType<IlrMessageFactory>().Keyed<IMessageFactory>(JobType.IlrSubmission).WithAttributeFiltering().SingleInstance();
+            builder.RegisterType<EsfMessageFactory>().Keyed<IMessageFactory>(JobType.EsfSubmission).WithAttributeFiltering().SingleInstance();
 
             builder.Register(c => new QueuePublishService<AuditingDto>(
                     c.Resolve<AuditQueueConfiguration>(),
@@ -74,32 +74,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             {
                 var logger = Logging.LoggerManager.CreateDefaultLogger();
                 return logger;
-            })
-                .As<ILogger>()
-                .InstancePerLifetimeScope();
-
-            builder.Register(context =>
-                {
-                    var registry = new PolicyRegistry();
-                    registry.Add(
-                        "ServiceBusRetryPolicy",
-                        Policy
-                            .Handle<MessagingEntityNotFoundException>()
-                            .Or<ServerBusyException>()
-                            .Or<ServiceBusCommunicationException>()
-                            .Or<TimeoutException>()
-                            .Or<TransactionInDoubtException>()
-                            .Or<QuotaExceededException>()
-                            .WaitAndRetryAsync(
-                                3, // number of retries
-                                retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), // exponential backoff
-                                (exception, timeSpan, retryCount, executionContext) =>
-                                {
-                                    // TODO: log the error
-                                }));
-                    return registry;
-                }).As<IReadOnlyPolicyRegistry<string>>()
-                .SingleInstance();
+            }).As<ILogger>().InstancePerLifetimeScope();
 
             builder.Register(context =>
             {

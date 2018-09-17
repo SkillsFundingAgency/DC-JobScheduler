@@ -7,6 +7,6 @@ namespace ESFA.DC.JobScheduler.Interfaces
 {
     public interface IMessageFactory
     {
-        MessageParameters CreateMessageParameters(Jobs.Model.Job job);
+        MessageParameters CreateMessageParameters(long jobId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Autofac.Features.AttributeFilters;
 using ESFA.DC.JobContext;
@@ -40,23 +41,23 @@ namespace ESFA.DC.JobScheduler
             _topicConfiguration = topicConfiguration;
         }
 
-        public MessageParameters CreateMessageParameters(Jobs.Model.Job fileUploadJob)
+        public MessageParameters CreateMessageParameters(long jobId)
         {
-            var jobMetaData = _fileUploadJobManager.GetJobById(fileUploadJob.JobId);
+            var job = _fileUploadJobManager.GetJobById(jobId);
 
-            var topics = CreateIlrTopicsList(jobMetaData.IsFirstStage);
+            var topics = CreateIlrTopicsList(job.IsFirstStage);
 
-            var contextMessage = new JobContext.JobContextMessage(
-                fileUploadJob.JobId,
+            var contextMessage = new JobContextMessage(
+                job.JobId,
                 topics,
-                jobMetaData.Ukprn.ToString(),
-                jobMetaData.StorageReference,
-                jobMetaData.FileName,
-                fileUploadJob.SubmittedBy,
+                job.Ukprn.ToString(),
+                job.StorageReference,
+                job.FileName,
+                job.SubmittedBy,
                 0,
-                fileUploadJob.DateTimeSubmittedUtc);
+                job.DateTimeSubmittedUtc);
 
-            AddExtraKeys(contextMessage, jobMetaData);
+            AddExtraKeys(contextMessage, job);
 
             var message = new MessageParameters(JobType.IlrSubmission)
             {
@@ -73,8 +74,13 @@ namespace ESFA.DC.JobScheduler
             return message;
         }
 
-        public void AddExtraKeys(JobContext.JobContextMessage message, FileUploadJob metaData)
+        public void AddExtraKeys(JobContextMessage message, FileUploadJob metaData)
         {
+            if (message.KeyValuePairs == null)
+            {
+                message.KeyValuePairs = new Dictionary<string, object>();
+            }
+
             message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, metaData.FileSize);
 
             if (metaData.IsFirstStage)

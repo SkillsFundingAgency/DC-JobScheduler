@@ -32,14 +32,12 @@ namespace ESFA.DC.JobScheduler.Console.Tests
                 container.IsRegistered(typeof(IJobManager)).Should().BeTrue();
                 container.IsRegistered(typeof(IFileUploadJobManager)).Should().BeTrue();
                 container.IsRegistered(typeof(IJobQueueHandler)).Should().BeTrue();
-                container.IsRegistered(typeof(IMessageFactory)).Should().BeTrue();
                 container.IsRegistered(typeof(IJobSchedulerStatusManager)).Should().BeTrue();
-                container.IsRegistered(typeof(IQueuePublishService<JobContextDto>)).Should().BeTrue();
+                //container.IsRegistered(typeof(ITopicPublishService<JobContextDto>)).Should().BeTrue();
                 container.IsRegistered(typeof(IJsonSerializationService)).Should().BeTrue();
                 container.IsRegistered(typeof(IAuditor)).Should().BeTrue();
                 container.IsRegistered(typeof(DbContextOptions)).Should().BeTrue();
                 container.IsRegistered(typeof(ILogger)).Should().BeTrue();
-                container.IsRegistered(typeof(IReadOnlyPolicyRegistry<string>)).Should().BeTrue();
             }
         }
     }
