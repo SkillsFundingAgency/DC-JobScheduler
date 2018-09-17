@@ -1,4 +1,5 @@
-﻿using ESFA.DC.Queueing.Interface;
+﻿using System;
+using ESFA.DC.Queueing.Interface;
 using ESFA.DC.Queueing.Interface.Configuration;
 using Newtonsoft.Json;
 
@@ -22,6 +23,6 @@ namespace ESFA.DC.JobScheduler.Settings
 
         public int MaximumRetryCount => 3;
 
-        public int MaximumCallbackTimeoutMinutes => 10;
+        public TimeSpan MaximumCallbackTimeSpan => new TimeSpan(0, 10, 0);
     }
 }
