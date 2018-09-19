@@ -1,72 +1,86 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Autofac.Features.AttributeFilters;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model;
 using ESFA.DC.Jobs.Model.Enums;
+using ESFA.DC.JobScheduler.Interfaces;
+using ESFA.DC.JobScheduler.Interfaces.Models;
 using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.KeyGenerator.Interface;
 using ESFA.DC.Logging.Interfaces;
+using ESFA.DC.Queueing.Interface.Configuration;
 
-namespace ESFA.DC.JobScheduler.JobContextMessage
+namespace ESFA.DC.JobScheduler
 {
-    public sealed class JobContextMessageFactory
+    public sealed class IlrMessageFactory : IMessageFactory
     {
         private readonly IlrFirstStageMessageTopics _ilrFirstStageMessageTopics;
         private readonly IlrSecondStageMessageTopics _ilrSecondStageMessageTopics;
         private readonly IKeyGenerator _keyGenerator;
         private readonly ILogger _logger;
         private readonly IFileUploadJobManager _fileUploadJobManager;
+        private readonly ITopicConfiguration _topicConfiguration;
 
-        public JobContextMessageFactory(
+        public IlrMessageFactory(
             IlrFirstStageMessageTopics ilrFirstStageMessageTopics,
             IlrSecondStageMessageTopics ilrSecondStageMessageTopics,
             IKeyGenerator keyGenerator,
             ILogger logger,
-            IFileUploadJobManager fileUploadMetaDataManager)
+            IFileUploadJobManager fileUploadMetaDataManager,
+            [KeyFilter(JobType.IlrSubmission)]ITopicConfiguration topicConfiguration)
         {
             _ilrFirstStageMessageTopics = ilrFirstStageMessageTopics;
             _ilrSecondStageMessageTopics = ilrSecondStageMessageTopics;
             _keyGenerator = keyGenerator;
             _logger = logger;
             _fileUploadJobManager = fileUploadMetaDataManager;
+            _topicConfiguration = topicConfiguration;
         }
 
-        public JobContext.JobContextMessage CreateJobContextMessage(Jobs.Model.Job job)
+        public MessageParameters CreateMessageParameters(long jobId)
         {
-            switch (job.JobType)
-            {
-                case JobType.IlrSubmission:
-                    return CreateFileUploadJobContextMessage(job);
-                default:
-                    throw new NotImplementedException();
-            }
-        }
+            var job = _fileUploadJobManager.GetJobById(jobId);
 
-        public JobContext.JobContextMessage CreateFileUploadJobContextMessage(Jobs.Model.Job fileUploadJob)
-        {
-            var jobMetaData = _fileUploadJobManager.GetJobById(fileUploadJob.JobId);
+            var topics = CreateIlrTopicsList(job.IsFirstStage);
 
-            var topics = CreateIlrTopicsList(jobMetaData.IsFirstStage);
-
-            var message = new JobContext.JobContextMessage(
-                fileUploadJob.JobId,
+            var contextMessage = new JobContextMessage(
+                job.JobId,
                 topics,
-                jobMetaData.Ukprn.ToString(),
-                jobMetaData.StorageReference,
-                jobMetaData.FileName,
-                fileUploadJob.SubmittedBy,
+                job.Ukprn.ToString(),
+                job.StorageReference,
+                job.FileName,
+                job.SubmittedBy,
                 0,
-                fileUploadJob.DateTimeSubmittedUtc);
+                job.DateTimeSubmittedUtc);
 
-            AddExtraKeys(message, jobMetaData);
+            AddExtraKeys(contextMessage, job);
+
+            var message = new MessageParameters(JobType.IlrSubmission)
+            {
+                JobContextMessage = contextMessage,
+                TopicParameters = new Dictionary<string, object>
+                {
+                    {
+                        "To", _topicConfiguration.SubscriptionName
+                    }
+                },
+                SubscriptionLabel = _topicConfiguration.SubscriptionName
+            };
 
             return message;
         }
 
-        public void AddExtraKeys(JobContext.JobContextMessage message, FileUploadJob metaData)
+        public void AddExtraKeys(JobContextMessage message, FileUploadJob metaData)
         {
+            if (message.KeyValuePairs == null)
+            {
+                message.KeyValuePairs = new Dictionary<string, object>();
+            }
+
             message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, metaData.FileSize);
 
             if (metaData.IsFirstStage)
