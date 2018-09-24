@@ -101,7 +101,7 @@ namespace ESFA.DC.JobScheduler.Tests
             auditorMock.Setup(x => x.AuditAsync(It.IsAny<JobContext.JobContextMessage>(), AuditEventType.ServiceFailed, It.IsAny<string>())).Returns(Task.CompletedTask);
 
             var messageFactoryMock = new Mock<IMessageFactory>();
-            messageFactoryMock.Setup(x => x.CreateMessageParameters(It.IsAny<long>()))
+            messageFactoryMock.Setup(x => x.CreateMessageParameters(It.IsAny<long>(), false))
                 .Returns(new MessageParameters(JobType.IlrSubmission));
 
             var indexedMock = new Mock<IIndex<JobType, IMessageFactory>>();

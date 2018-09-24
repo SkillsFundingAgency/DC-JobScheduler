@@ -75,7 +75,7 @@ namespace ESFA.DC.JobScheduler
 
             _logger.LogInfo($"Job id : {job.JobId} recieved for moving to queue");
 
-            var message = _jobContextMessageFactories[job.JobType].CreateMessageParameters(job.JobId);
+            var message = _jobContextMessageFactories[job.JobType].CreateMessageParameters(job.JobId, job.IsCrossLoaded);
 
             try
             {

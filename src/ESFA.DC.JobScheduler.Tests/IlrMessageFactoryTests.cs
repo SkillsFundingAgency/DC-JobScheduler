@@ -24,7 +24,7 @@ namespace ESFA.DC.JobScheduler.Tests
         public void CreateMessageParameters_Success()
         {
             var factory = GetFactory();
-            var result = factory.CreateMessageParameters(It.IsAny<long>());
+            var result = factory.CreateMessageParameters(It.IsAny<long>(), false);
 
             result.Should().NotBeNull();
             result.JobType.Should().Be(JobType.IlrSubmission);
@@ -54,7 +54,7 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var factory = GetFactory(isFirstStage, job);
 
-            factory.AddExtraKeys(message, job);
+            factory.AddExtraKeys(message, job, true);
 
             message.KeyValuePairs[JobContextMessageKey.FileSizeInBytes].Should().Be(123);
 
@@ -74,6 +74,7 @@ namespace ESFA.DC.JobScheduler.Tests
             message.KeyValuePairs.ContainsKey(JobContextMessageKey.FundingAlbOutput).Should().BeTrue();
             message.KeyValuePairs.ContainsKey(JobContextMessageKey.FundingFm35Output).Should().BeTrue();
             message.KeyValuePairs.ContainsKey(JobContextMessageKey.FundingFm25Output).Should().BeTrue();
+            message.KeyValuePairs.ContainsKey(JobContextMessageKey.JobIsCrossLoaded).Should().BeTrue();
         }
 
         [Fact]

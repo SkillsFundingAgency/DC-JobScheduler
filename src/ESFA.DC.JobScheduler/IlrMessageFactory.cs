@@ -41,7 +41,7 @@ namespace ESFA.DC.JobScheduler
             _topicConfiguration = topicConfiguration;
         }
 
-        public MessageParameters CreateMessageParameters(long jobId)
+        public MessageParameters CreateMessageParameters(long jobId, bool isCrossLoaded)
         {
             var job = _fileUploadJobManager.GetJobById(jobId);
 
@@ -57,7 +57,7 @@ namespace ESFA.DC.JobScheduler
                 0,
                 job.DateTimeSubmittedUtc);
 
-            AddExtraKeys(contextMessage, job);
+            AddExtraKeys(contextMessage, job, isCrossLoaded);
 
             var message = new MessageParameters(JobType.IlrSubmission)
             {
@@ -74,7 +74,7 @@ namespace ESFA.DC.JobScheduler
             return message;
         }
 
-        public void AddExtraKeys(JobContextMessage message, FileUploadJob metaData)
+        public void AddExtraKeys(JobContextMessage message, FileUploadJob metaData, bool isCrossLoaded)
         {
             if (message.KeyValuePairs == null)
             {
@@ -92,6 +92,11 @@ namespace ESFA.DC.JobScheduler
             {
                 _logger.LogWarning("Can't get UKPRN, so unable to populate ILR keys");
                 return;
+            }
+
+            if (isCrossLoaded)
+            {
+                message.KeyValuePairs.Add(JobContextMessageKey.JobIsCrossLoaded, "1");
             }
 
             message.KeyValuePairs.Add(JobContextMessageKey.InvalidLearnRefNumbers, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.ValidationInvalidLearners));

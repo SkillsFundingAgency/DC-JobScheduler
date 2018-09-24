@@ -7,6 +7,6 @@ namespace ESFA.DC.JobScheduler.Interfaces
 {
     public interface IMessageFactory
     {
-        MessageParameters CreateMessageParameters(long jobId);
+        MessageParameters CreateMessageParameters(long jobId, bool isCrossLoaded);
     }
 }

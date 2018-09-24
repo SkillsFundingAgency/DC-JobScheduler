@@ -17,24 +17,21 @@ namespace ESFA.DC.JobScheduler
     public sealed class EsfMessageFactory : IMessageFactory
     {
         private readonly EsfMessageTopics _esfMessageTopics;
-        private readonly IKeyGenerator _keyGenerator;
         private readonly IFileUploadJobManager _fileUploadJobManager;
         private readonly ITopicConfiguration _topicConfiguration;
 
         public EsfMessageFactory(
             EsfMessageTopics esfMessageTopics,
-            IKeyGenerator keyGenerator,
             ILogger logger,
             IFileUploadJobManager fileUploadMetaDataManager,
             [KeyFilter(JobType.EsfSubmission)]ITopicConfiguration topicConfiguration)
         {
             _esfMessageTopics = esfMessageTopics;
-            _keyGenerator = keyGenerator;
             _fileUploadJobManager = fileUploadMetaDataManager;
             _topicConfiguration = topicConfiguration;
         }
 
-        public MessageParameters CreateMessageParameters(long jobId)
+        public MessageParameters CreateMessageParameters(long jobId, bool isCrossLoaded)
         {
             var job = _fileUploadJobManager.GetJobById(jobId);
 
@@ -49,6 +46,11 @@ namespace ESFA.DC.JobScheduler
                 job.SubmittedBy,
                 0,
                 job.DateTimeSubmittedUtc);
+
+            if (isCrossLoaded)
+            {
+                contextMessage.KeyValuePairs.Add(JobContextMessageKey.JobIsCrossLoaded, true);
+            }
 
             var message = new MessageParameters(JobType.EsfSubmission)
             {
