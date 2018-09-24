@@ -3,11 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Autofac.Features.Indexed;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
-using ESFA.DC.JobScheduler.ServiceBus;
+using ESFA.DC.Jobs.Model.Enums;
+using ESFA.DC.JobScheduler.Interfaces.Models;
 using ESFA.DC.Queueing.Interface;
-using Microsoft.Azure.ServiceBus;
 using Moq;
 using Polly;
 using Polly.Registry;
@@ -20,23 +21,27 @@ namespace ESFA.DC.JobScheduler.Tests
         [Fact]
         public void SendMessagesAsync_Test()
         {
-            var queuePublishServiceMock = new Mock<IQueuePublishService<JobContextDto>>();
-            queuePublishServiceMock.Setup(x => x.PublishAsync(new JobContextDto())).Returns(Task.CompletedTask);
+            var topicPublishMock = new Mock<ITopicPublishService<JobContextDto>>();
+            topicPublishMock.Setup(x => x.PublishAsync(new JobContextDto(), new Dictionary<string, object>(), "Test")).Returns(Task.CompletedTask);
 
-            var message = new JobContext.JobContextMessage()
+            var message = new MessageParameters(JobType.IlrSubmission)
             {
-                KeyValuePairs = new ConcurrentDictionary<string, object>(),
-                Topics = new List<ITopicItem>(),
-                JobId = 1,
+                JobContextMessage = new JobContextMessage()
+                {
+                    KeyValuePairs = new Dictionary<string, object>(),
+                    Topics = new List<ITopicItem>()
+                },
+                SubscriptionLabel = "Test",
+                TopicParameters = new Dictionary<string, object>()
             };
 
-            var polyMock = new Mock<IReadOnlyPolicyRegistry<string>>();
-            polyMock.Setup(x => x.Get<IAsyncPolicy>(It.IsAny<string>())).Returns(Policy.NoOpAsync);
+            var indexedMock = new Mock<IIndex<JobType, ITopicPublishService<JobContextDto>>>();
+            indexedMock.SetupGet(x => x[JobType.IlrSubmission]).Returns(topicPublishMock.Object);
 
-            var messagingService = new MessagingService(queuePublishServiceMock.Object, polyMock.Object, new JobContextMapper());
-            messagingService.SendMessagesAsync(message).ConfigureAwait(true);
+            var messagingService = new MessagingService(indexedMock.Object, new JobContextMapper());
+            messagingService.SendMessageAsync(message).ConfigureAwait(true);
 
-            queuePublishServiceMock.Verify(x => x.PublishAsync(It.IsAny<JobContextDto>()), Times.Once);
+            topicPublishMock.Verify(x => x.PublishAsync(It.IsAny<JobContextDto>(), It.IsAny<Dictionary<string, object>>(), "Test"), Times.Once);
         }
     }
 }
