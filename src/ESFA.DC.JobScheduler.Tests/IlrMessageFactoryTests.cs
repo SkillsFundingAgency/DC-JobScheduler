@@ -20,18 +20,29 @@ namespace ESFA.DC.JobScheduler.Tests
 {
     public class IlrMessageFactoryTests
     {
-        [Fact]
-        public void CreateMessageParameters_Success()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void CreateMessageParameters_Success(bool isCrossLoaded)
         {
-            var factory = GetFactory();
-            var result = factory.CreateMessageParameters(It.IsAny<long>(), false);
+            var job = new FileUploadJob()
+            {
+                JobType = JobType.IlrSubmission,
+                IsCrossLoaded = isCrossLoaded,
+                JobId = 10
+            };
+
+            var factory = GetFactory(false, job);
+
+            var result = factory.CreateMessageParameters(It.IsAny<long>());
 
             result.Should().NotBeNull();
             result.JobType.Should().Be(JobType.IlrSubmission);
             result.JobContextMessage.JobId.Should().Be(10);
-            result.JobContextMessage.Topics.Count.Should().Be(2);
+            result.JobContextMessage.Topics.Count.Should().Be(4);
             result.SubscriptionLabel.Should().Be("Validation");
             result.TopicParameters.ContainsKey("To").Should().Be(true);
+            result.IsCrossLoaded.Should().Be(isCrossLoaded);
         }
 
         [Theory]
@@ -49,12 +60,12 @@ namespace ESFA.DC.JobScheduler.Tests
                 FileName = "filename.xml",
                 SubmittedBy = "test user",
                 DateTimeSubmittedUtc = new DateTime(2018, 10, 10),
-                IsFirstStage = isFirstStage
+                IsFirstStage = isFirstStage,
             };
 
             var factory = GetFactory(isFirstStage, job);
 
-            factory.AddExtraKeys(message, job, true);
+            factory.AddExtraKeys(message, job);
 
             message.KeyValuePairs[JobContextMessageKey.FileSizeInBytes].Should().Be(123);
 
@@ -74,7 +85,6 @@ namespace ESFA.DC.JobScheduler.Tests
             message.KeyValuePairs.ContainsKey(JobContextMessageKey.FundingAlbOutput).Should().BeTrue();
             message.KeyValuePairs.ContainsKey(JobContextMessageKey.FundingFm35Output).Should().BeTrue();
             message.KeyValuePairs.ContainsKey(JobContextMessageKey.FundingFm25Output).Should().BeTrue();
-            message.KeyValuePairs.ContainsKey(JobContextMessageKey.JobIsCrossLoaded).Should().BeTrue();
         }
 
         [Fact]
@@ -82,7 +92,7 @@ namespace ESFA.DC.JobScheduler.Tests
         {
             var factory = GetFactory();
 
-            var result = factory.CreateIlrTopicsList(true);
+            var result = factory.CreateTopics(true);
             result.Should().BeAssignableTo<IEnumerable<TopicItem>>();
             result.Count.Should().Be(2);
             result.Any(x => x.SubscriptionName == "Val" && x.Tasks != null).Should().BeTrue();
@@ -95,7 +105,7 @@ namespace ESFA.DC.JobScheduler.Tests
         {
             var factory = GetFactory(false);
 
-            var result = factory.CreateIlrTopicsList(false);
+            var result = factory.CreateTopics(false);
             result.Should().BeAssignableTo<IEnumerable<TopicItem>>();
             result.Count.Should().Be(4);
             result.Any(x => x.SubscriptionName == "Val" && x.Tasks != null).Should().BeTrue();

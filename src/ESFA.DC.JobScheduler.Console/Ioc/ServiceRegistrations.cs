@@ -87,6 +87,24 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
                 var config = context.ResolveKeyed<ITopicConfiguration>(JobType.EsfSubmission);
                 return new TopicPublishService<JobContextDto>(config, context.Resolve<IJsonSerializationService>());
             }).Keyed<ITopicPublishService<JobContextDto>>(JobType.EsfSubmission).InstancePerLifetimeScope();
+
+            builder.Register(context =>
+            {
+                var config = context.ResolveKeyed<IQueueConfiguration>(JobType.EsfSubmission);
+                return new QueuePublishService<JobContextDto>(config, context.Resolve<IJsonSerializationService>());
+            }).Keyed<IQueuePublishService<JobContextDto>>(JobType.EsfSubmission).InstancePerLifetimeScope();
+
+            builder.Register(context =>
+            {
+                var config = context.ResolveKeyed<IQueueConfiguration>(JobType.IlrSubmission);
+                return new QueuePublishService<JobContextDto>(config, context.Resolve<IJsonSerializationService>());
+            }).Keyed<IQueuePublishService<JobContextDto>>(JobType.IlrSubmission).InstancePerLifetimeScope();
+
+            builder.Register(context =>
+            {
+                var config = context.ResolveKeyed<IQueueConfiguration>(JobType.EasSubmission);
+                return new QueuePublishService<JobContextDto>(config, context.Resolve<IJsonSerializationService>());
+            }).Keyed<IQueuePublishService<JobContextDto>>(JobType.EasSubmission).InstancePerLifetimeScope();
         }
     }
 }

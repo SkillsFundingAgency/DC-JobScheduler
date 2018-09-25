@@ -20,5 +20,7 @@ namespace ESFA.DC.JobScheduler.Interfaces.Models
         public IDictionary<string, object> TopicParameters { get; set; }
 
         public JobType JobType { get; set; }
+
+        public bool IsCrossLoaded { get; set; }
     }
 }

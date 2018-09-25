@@ -22,6 +22,13 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.Register(c => configuration.GetConfigSection<ServiceBusTopicConfiguration>("EsfTopicConfiguration"))
                 .Keyed<ITopicConfiguration>(JobType.EsfSubmission).SingleInstance();
 
+            builder.Register(c => configuration.GetConfigSection<ServiceBusQueueConfiguration>("IlrCrossLoadingQueueConfiguration"))
+                .Keyed<IQueueConfiguration>(JobType.IlrSubmission).SingleInstance();
+            builder.Register(c => configuration.GetConfigSection<ServiceBusQueueConfiguration>("EsfCrossLoadingQueueConfiguration"))
+                .Keyed<IQueueConfiguration>(JobType.EsfSubmission).SingleInstance();
+            builder.Register(c => configuration.GetConfigSection<ServiceBusQueueConfiguration>("EasCrossLoadingQueueConfiguration"))
+                .Keyed<IQueueConfiguration>(JobType.EasSubmission).SingleInstance();
+
             builder.Register(c => configuration.GetConfigSection<AuditQueueConfiguration>())
                 .As<AuditQueueConfiguration>().SingleInstance();
 
