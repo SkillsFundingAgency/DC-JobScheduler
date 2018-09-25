@@ -8,6 +8,7 @@ using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobScheduler.Interfaces.Models;
+using ESFA.DC.Logging.Interfaces;
 using ESFA.DC.Queueing.Interface;
 using Moq;
 using Polly;
@@ -18,8 +19,10 @@ namespace ESFA.DC.JobScheduler.Tests
 {
     public class MessagingServiceTests
     {
-        [Fact]
-        public void SendMessagesAsync_Test()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void SendMessagesAsync_Test(bool isCrossLoaded)
         {
             var topicPublishMock = new Mock<ITopicPublishService<JobContextDto>>();
             topicPublishMock.Setup(x => x.PublishAsync(new JobContextDto(), new Dictionary<string, object>(), "Test")).Returns(Task.CompletedTask);
@@ -32,13 +35,13 @@ namespace ESFA.DC.JobScheduler.Tests
                     Topics = new List<ITopicItem>()
                 },
                 SubscriptionLabel = "Test",
-                TopicParameters = new Dictionary<string, object>()
+                TopicParameters = new Dictionary<string, object>(),
             };
 
-            var indexedMock = new Mock<IIndex<JobType, ITopicPublishService<JobContextDto>>>();
-            indexedMock.SetupGet(x => x[JobType.IlrSubmission]).Returns(topicPublishMock.Object);
+            var indexedTopicsMock = new Mock<IIndex<JobType, ITopicPublishService<JobContextDto>>>();
+            indexedTopicsMock.SetupGet(x => x[JobType.IlrSubmission]).Returns(topicPublishMock.Object);
 
-            var messagingService = new MessagingService(indexedMock.Object, new JobContextMapper());
+            var messagingService = new MessagingService(indexedTopicsMock.Object, new JobContextMapper(), new Mock<ILogger>().Object);
             messagingService.SendMessageAsync(message).ConfigureAwait(true);
 
             topicPublishMock.Verify(x => x.PublishAsync(It.IsAny<JobContextDto>(), It.IsAny<Dictionary<string, object>>(), "Test"), Times.Once);

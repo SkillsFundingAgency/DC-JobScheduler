@@ -16,14 +16,11 @@ using ESFA.DC.Queueing.Interface.Configuration;
 
 namespace ESFA.DC.JobScheduler
 {
-    public sealed class IlrMessageFactory : IMessageFactory
+    public sealed class IlrMessageFactory : AbstractFileUploadMessageFactory
     {
         private readonly IlrFirstStageMessageTopics _ilrFirstStageMessageTopics;
         private readonly IlrSecondStageMessageTopics _ilrSecondStageMessageTopics;
         private readonly IKeyGenerator _keyGenerator;
-        private readonly ILogger _logger;
-        private readonly IFileUploadJobManager _fileUploadJobManager;
-        private readonly ITopicConfiguration _topicConfiguration;
 
         public IlrMessageFactory(
             IlrFirstStageMessageTopics ilrFirstStageMessageTopics,
@@ -32,49 +29,14 @@ namespace ESFA.DC.JobScheduler
             ILogger logger,
             IFileUploadJobManager fileUploadMetaDataManager,
             [KeyFilter(JobType.IlrSubmission)]ITopicConfiguration topicConfiguration)
+            : base(logger, fileUploadMetaDataManager, topicConfiguration)
         {
             _ilrFirstStageMessageTopics = ilrFirstStageMessageTopics;
             _ilrSecondStageMessageTopics = ilrSecondStageMessageTopics;
             _keyGenerator = keyGenerator;
-            _logger = logger;
-            _fileUploadJobManager = fileUploadMetaDataManager;
-            _topicConfiguration = topicConfiguration;
         }
 
-        public MessageParameters CreateMessageParameters(long jobId)
-        {
-            var job = _fileUploadJobManager.GetJobById(jobId);
-
-            var topics = CreateIlrTopicsList(job.IsFirstStage);
-
-            var contextMessage = new JobContextMessage(
-                job.JobId,
-                topics,
-                job.Ukprn.ToString(),
-                job.StorageReference,
-                job.FileName,
-                job.SubmittedBy,
-                0,
-                job.DateTimeSubmittedUtc);
-
-            AddExtraKeys(contextMessage, job);
-
-            var message = new MessageParameters(JobType.IlrSubmission)
-            {
-                JobContextMessage = contextMessage,
-                TopicParameters = new Dictionary<string, object>
-                {
-                    {
-                        "To", _topicConfiguration.SubscriptionName
-                    }
-                },
-                SubscriptionLabel = _topicConfiguration.SubscriptionName
-            };
-
-            return message;
-        }
-
-        public void AddExtraKeys(JobContextMessage message, FileUploadJob metaData)
+        public override void AddExtraKeys(JobContextMessage message, FileUploadJob metaData)
         {
             if (message.KeyValuePairs == null)
             {
@@ -90,7 +52,6 @@ namespace ESFA.DC.JobScheduler
 
             if (metaData.Ukprn == 0)
             {
-                _logger.LogWarning("Can't get UKPRN, so unable to populate ILR keys");
                 return;
             }
 
@@ -103,7 +64,7 @@ namespace ESFA.DC.JobScheduler
             message.KeyValuePairs.Add(JobContextMessageKey.FundingFm25Output, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.FundingFm25Output));
         }
 
-        public List<TopicItem> CreateIlrTopicsList(bool isFirstStage)
+        public override List<TopicItem> CreateTopics(bool isFirstStage)
         {
             var topics = new List<TopicItem>();
 
