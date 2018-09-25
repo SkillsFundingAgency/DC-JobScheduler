@@ -28,7 +28,6 @@ namespace ESFA.DC.JobScheduler.Tests
             var job = new FileUploadJob()
             {
                 JobType = JobType.IlrSubmission,
-                IsCrossLoaded = isCrossLoaded,
                 JobId = 10
             };
 
@@ -42,7 +41,6 @@ namespace ESFA.DC.JobScheduler.Tests
             result.JobContextMessage.Topics.Count.Should().Be(4);
             result.SubscriptionLabel.Should().Be("Validation");
             result.TopicParameters.ContainsKey("To").Should().Be(true);
-            result.IsCrossLoaded.Should().Be(isCrossLoaded);
         }
 
         [Theory]

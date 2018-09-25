@@ -19,19 +19,16 @@ namespace ESFA.DC.JobScheduler
     public class MessagingService : IMessagingService
     {
         private readonly IIndex<JobType, ITopicPublishService<JobContextDto>> _topicPublishServices;
-        private readonly IIndex<JobType, IQueuePublishService<JobContextDto>> _queuePublishServices;
         private readonly ILogger _logger;
         private readonly JobContextMapper _jobContextMapper;
 
         public MessagingService(
             IIndex<JobType, ITopicPublishService<JobContextDto>> topicPublishServices,
-            IIndex<JobType, IQueuePublishService<JobContextDto>> queuePublishServices,
             JobContextMapper jobContextMapper,
             ILogger logger)
         {
             _topicPublishServices = topicPublishServices;
             _jobContextMapper = jobContextMapper;
-            _queuePublishServices = queuePublishServices;
             _logger = logger;
         }
 
@@ -42,24 +39,6 @@ namespace ESFA.DC.JobScheduler
                 _jobContextMapper.MapFrom(jobContextMessage),
                 messageParameters.TopicParameters,
                 messageParameters.SubscriptionLabel);
-
-            if (messageParameters.IsCrossLoaded)
-            {
-                _logger.LogInfo("Senidng message to cross loading queue for job id : {jobContextMessage.JobId}");
-                await SendCrossLoadingMessageAsync(jobContextMessage, messageParameters.JobType);
-            }
-        }
-
-        public async Task SendCrossLoadingMessageAsync(JobContextMessage jobContextMessage, JobType jobType)
-        {
-            try
-            {
-                await _queuePublishServices[jobType].PublishAsync(_jobContextMapper.MapFrom(jobContextMessage));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Failed to send message to cross loading queue for job id : {jobContextMessage.JobId}", ex);
-            }
         }
     }
 }

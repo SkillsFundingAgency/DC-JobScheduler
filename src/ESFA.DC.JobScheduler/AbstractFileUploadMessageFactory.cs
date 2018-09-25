@@ -60,13 +60,7 @@ namespace ESFA.DC.JobScheduler
                     }
                 },
                 SubscriptionLabel = _topicConfiguration.SubscriptionName,
-                IsCrossLoaded = job.IsCrossLoaded
             };
-
-            if (job.IsCrossLoaded)
-            {
-                contextMessage.KeyValuePairs.Add(JobContextMessageKey.JobIsCrossLoaded, "1");
-            }
 
             return message;
         }
