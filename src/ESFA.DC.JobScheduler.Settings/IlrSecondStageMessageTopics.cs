@@ -39,5 +39,8 @@ namespace ESFA.DC.JobScheduler.Settings
 
         [JsonRequired]
         public string TopicFunding_TaskPerformFM35Calculation { get; set; }
+
+        [JsonRequired]
+        public string TopicFunding_TaskPerformFM36Calculation { get; set; }
     }
 }
