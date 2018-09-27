@@ -107,7 +107,8 @@ namespace ESFA.DC.JobScheduler
                         {
                             _ilrSecondStageMessageTopics.TopicFunding_TaskPerformALBCalculation,
                             _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM25Calculation,
-                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM35Calculation
+                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM35Calculation,
+                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM36Calculation
                         },
                         SupportsParallelExecution = false
                     }
