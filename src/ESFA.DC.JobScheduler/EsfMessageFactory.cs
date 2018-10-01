@@ -14,58 +14,29 @@ using ESFA.DC.Queueing.Interface.Configuration;
 
 namespace ESFA.DC.JobScheduler
 {
-    public sealed class EsfMessageFactory : IMessageFactory
+    public sealed class EsfMessageFactory : AbstractFileUploadMessageFactory
     {
         private readonly EsfMessageTopics _esfMessageTopics;
-        private readonly IKeyGenerator _keyGenerator;
         private readonly IFileUploadJobManager _fileUploadJobManager;
         private readonly ITopicConfiguration _topicConfiguration;
 
         public EsfMessageFactory(
             EsfMessageTopics esfMessageTopics,
-            IKeyGenerator keyGenerator,
             ILogger logger,
             IFileUploadJobManager fileUploadMetaDataManager,
             [KeyFilter(JobType.EsfSubmission)]ITopicConfiguration topicConfiguration)
+            : base(logger, fileUploadMetaDataManager, topicConfiguration)
         {
             _esfMessageTopics = esfMessageTopics;
-            _keyGenerator = keyGenerator;
             _fileUploadJobManager = fileUploadMetaDataManager;
             _topicConfiguration = topicConfiguration;
         }
 
-        public MessageParameters CreateMessageParameters(long jobId)
+        public override void AddExtraKeys(JobContextMessage message, FileUploadJob metaData)
         {
-            var job = _fileUploadJobManager.GetJobById(jobId);
-
-            var topics = CreateTopicsList();
-
-            var contextMessage = new JobContextMessage(
-                job.JobId,
-                topics,
-                job.Ukprn.ToString(),
-                job.StorageReference,
-                job.FileName,
-                job.SubmittedBy,
-                0,
-                job.DateTimeSubmittedUtc);
-
-            var message = new MessageParameters(JobType.EsfSubmission)
-            {
-                JobContextMessage = contextMessage,
-                TopicParameters = new Dictionary<string, object>
-                {
-                    {
-                        "To", _topicConfiguration.SubscriptionName
-                    }
-                },
-                SubscriptionLabel = _topicConfiguration.SubscriptionName
-            };
-
-            return message;
         }
 
-        public List<TopicItem> CreateTopicsList()
+        public override List<TopicItem> CreateTopics(bool isFirstStage)
         {
             var topics = new List<TopicItem>();
 

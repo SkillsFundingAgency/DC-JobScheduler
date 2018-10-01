@@ -8,6 +8,7 @@ using ESFA.DC.JobContext;
 using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobScheduler.Interfaces;
 using ESFA.DC.JobScheduler.Interfaces.Models;
+using ESFA.DC.Logging.Interfaces;
 using ESFA.DC.Queueing.Interface;
 using Microsoft.Azure.ServiceBus;
 using Polly;
@@ -18,12 +19,17 @@ namespace ESFA.DC.JobScheduler
     public class MessagingService : IMessagingService
     {
         private readonly IIndex<JobType, ITopicPublishService<JobContextDto>> _topicPublishServices;
+        private readonly ILogger _logger;
         private readonly JobContextMapper _jobContextMapper;
 
-        public MessagingService(IIndex<JobType, ITopicPublishService<JobContextDto>> topicPublishServices, JobContextMapper jobContextMapper)
+        public MessagingService(
+            IIndex<JobType, ITopicPublishService<JobContextDto>> topicPublishServices,
+            JobContextMapper jobContextMapper,
+            ILogger logger)
         {
             _topicPublishServices = topicPublishServices;
             _jobContextMapper = jobContextMapper;
+            _logger = logger;
         }
 
         public async Task SendMessageAsync(MessageParameters messageParameters)
