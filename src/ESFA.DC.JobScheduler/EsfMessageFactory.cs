@@ -49,10 +49,7 @@ namespace ESFA.DC.JobScheduler
                 }
             };
 
-            topics.Add(new TopicItem(_esfMessageTopics.TopicValidation, _esfMessageTopics.TopicValidation, tasks));
-            topics.Add(new TopicItem(_esfMessageTopics.TopicFunding, _esfMessageTopics.TopicFunding, tasks));
-            topics.Add(new TopicItem(_esfMessageTopics.TopicReports, _esfMessageTopics.TopicReports, tasks));
-
+            topics.Add(new TopicItem(_esfMessageTopics.TopicProcessing, _esfMessageTopics.TopicProcessing, tasks));
             return topics;
         }
     }
