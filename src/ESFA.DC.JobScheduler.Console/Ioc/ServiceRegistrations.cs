@@ -6,6 +6,8 @@ using Autofac.Features.AttributeFilters;
 using ESFA.DC.Auditing;
 using ESFA.DC.Auditing.Dto;
 using ESFA.DC.Auditing.Interface;
+using ESFA.DC.CrossLoad;
+using ESFA.DC.CrossLoad.Dto;
 using ESFA.DC.DateTimeProvider.Interface;
 using ESFA.DC.IO.Interfaces;
 using ESFA.DC.JobContext;
@@ -15,6 +17,7 @@ using ESFA.DC.JobNotifications.Interfaces;
 using ESFA.DC.JobQueueManager;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model.Enums;
+using ESFA.DC.JobSchduler.CrossLoading;
 using ESFA.DC.JobScheduler.Interfaces;
 using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.KeyGenerator.Interface;
@@ -41,15 +44,25 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.RegisterType<FileUploadJobManager>().As<IFileUploadJobManager>().InstancePerLifetimeScope();
             builder.RegisterType<JobQueueHandler>().As<IJobQueueHandler>().InstancePerLifetimeScope();
             builder.RegisterType<JobSchedulerStatusManager>().As<IJobSchedulerStatusManager>().InstancePerLifetimeScope();
+            builder.RegisterType<CrossLoadingService>().As<ICrossLoadingService>().InstancePerLifetimeScope();
 
             builder.RegisterType<JsonSerializationService>().As<IJsonSerializationService>().InstancePerLifetimeScope();
             builder.RegisterType<DateTimeProvider.DateTimeProvider>().As<IDateTimeProvider>().SingleInstance();
             builder.RegisterType<KeyGenerator.KeyGenerator>().As<IKeyGenerator>().SingleInstance();
             builder.RegisterType<EmailNotifier>().As<IEmailNotifier>().InstancePerLifetimeScope();
             builder.RegisterType<EmailTemplateManager>().As<IEmailTemplateManager>().InstancePerLifetimeScope();
+            builder.RegisterType<QueuePublishService<MessageCrossLoadDctToDcftDto>>().As<IQueuePublishService<MessageCrossLoadDctToDcftDto>>().InstancePerLifetimeScope();
+            builder.RegisterType<CrossLoadMessageMapper>().InstancePerLifetimeScope();
+            builder.RegisterType<JsonSerializationService>().As<ISerializationService>().InstancePerLifetimeScope();
 
             builder.RegisterType<IlrMessageFactory>().Keyed<IMessageFactory>(JobType.IlrSubmission).WithAttributeFiltering().SingleInstance();
             builder.RegisterType<EsfMessageFactory>().Keyed<IMessageFactory>(JobType.EsfSubmission).WithAttributeFiltering().SingleInstance();
+
+            builder.Register(c => new QueuePublishService<AuditingDto>(
+                    c.Resolve<AuditQueueConfiguration>(),
+                    c.Resolve<IJsonSerializationService>()))
+                .As<IQueuePublishService<AuditingDto>>();
+            builder.RegisterType<Auditor>().As<IAuditor>().InstancePerLifetimeScope();
 
             builder.Register(c => new QueuePublishService<AuditingDto>(
                     c.Resolve<AuditQueueConfiguration>(),

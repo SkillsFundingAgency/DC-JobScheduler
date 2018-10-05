@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using ESFA.DC.Job.WebApi.Settings;
 using ESFA.DC.JobNotifications;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model.Enums;
@@ -38,6 +37,9 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
 
             builder.Register(c => configuration.GetConfigSection<NotifierConfig>())
                 .As<INotifierConfig>().SingleInstance();
+
+            builder.Register(c => configuration.GetConfigSection<CrossLoadingQueueConfiguration>())
+                .As<IQueueConfiguration>().SingleInstance();
         }
     }
 }
