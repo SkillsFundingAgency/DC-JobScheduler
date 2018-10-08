@@ -8,6 +8,6 @@ namespace ESFA.DC.JobSchduler.CrossLoading
 {
     public interface ICrossLoadingService
     {
-        Task SendMessageForCrossLoading(long jobId);
+        Task<bool> SendMessageForCrossLoading(long jobId);
     }
 }
