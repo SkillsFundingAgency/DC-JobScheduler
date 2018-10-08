@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ESFA.DC.JobScheduler.Consol
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ESFA.DC.JobScheduler.Settings", "ESFA.DC.JobScheduler.Settings\ESFA.DC.JobScheduler.Settings.csproj", "{EBB68C42-E6F6-4A08-9C00-4ED6231C9084}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESFA.DC.JobScheduler.Interfaces", "ESFA.DC.JobScheduler.Interfaces\ESFA.DC.JobScheduler.Interfaces.csproj", "{E6EEEBCA-FC18-4AC7-8178-3EFB236D70A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ESFA.DC.JobScheduler.Interfaces", "ESFA.DC.JobScheduler.Interfaces\ESFA.DC.JobScheduler.Interfaces.csproj", "{E6EEEBCA-FC18-4AC7-8178-3EFB236D70A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESFA.DC.JobSchduler.CrossLoading", "ESFA.DC.JobSchduler.CrossLoading\ESFA.DC.JobSchduler.CrossLoading.csproj", "{0513340D-5A0C-4BAD-9C06-EAF757A8D437}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{E6EEEBCA-FC18-4AC7-8178-3EFB236D70A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6EEEBCA-FC18-4AC7-8178-3EFB236D70A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6EEEBCA-FC18-4AC7-8178-3EFB236D70A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0513340D-5A0C-4BAD-9C06-EAF757A8D437}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0513340D-5A0C-4BAD-9C06-EAF757A8D437}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0513340D-5A0C-4BAD-9C06-EAF757A8D437}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0513340D-5A0C-4BAD-9C06-EAF757A8D437}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

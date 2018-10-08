@@ -8,6 +8,7 @@ using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model.Enums;
+using ESFA.DC.JobSchduler.CrossLoading;
 using ESFA.DC.JobScheduler.Interfaces;
 using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.JobStatus.Interface;
@@ -23,6 +24,7 @@ namespace ESFA.DC.JobScheduler
         private readonly IAuditor _auditor;
         private readonly IIndex<JobType, IMessageFactory> _jobContextMessageFactories;
         private readonly ILogger _logger;
+        private readonly ICrossLoadingService _crossLoadingService;
 
         public JobQueueHandler(
             IMessagingService messagingService,
@@ -30,7 +32,8 @@ namespace ESFA.DC.JobScheduler
             IAuditor auditor,
             IJobSchedulerStatusManager jobSchedulerStatusManager,
             IIndex<JobType, IMessageFactory> jobContextMessageFactories,
-            ILogger logger)
+            ILogger logger,
+            ICrossLoadingService crossLoadingService)
         {
             _jobSchedulerStatusManager = jobSchedulerStatusManager;
             _jobQueueManager = jobQueueManager;
@@ -38,6 +41,7 @@ namespace ESFA.DC.JobScheduler
             _auditor = auditor;
             _jobContextMessageFactories = jobContextMessageFactories;
             _logger = logger;
+            _crossLoadingService = crossLoadingService;
         }
 
         public async Task ProcessNextJobAsync()
@@ -54,6 +58,7 @@ namespace ESFA.DC.JobScheduler
                         {
                             _logger.LogInfo($"Got job id : {job.JobId}");
                             await MoveJobForProcessing(job);
+                            await MoveJobForCrossLoading(job);
                         }
                     }
                 }
@@ -93,20 +98,39 @@ namespace ESFA.DC.JobScheduler
                     catch (Exception ex)
                     {
                         _logger.LogError($"Job id : {job.JobId} sending to service bus failed", ex);
-                        await _auditor.AuditAsync(message.JobContextMessage, AuditEventType.ServiceFailed, $"Failed to send message to Servie bus queue with exception : {ex}");
+                        await _auditor.AuditAsync(
+                            message.JobContextMessage,
+                            AuditEventType.ServiceFailed,
+                            $"Failed to send message to Servie bus queue with exception : {ex}");
                         _jobQueueManager.UpdateJobStatus(job.JobId, JobStatusType.Failed);
                     }
                 }
                 else
                 {
                     _logger.LogWarning($"Job id : {job.JobId} failed to send to service bus");
-                    await _auditor.AuditAsync(message.JobContextMessage, AuditEventType.JobFailed, "Failed to update job status, no message is added to the service bus queue");
+                    await _auditor.AuditAsync(
+                        message.JobContextMessage,
+                        AuditEventType.JobFailed,
+                        "Failed to update job status, no message is added to the service bus queue");
                 }
             }
             catch (Exception exception)
             {
                 _logger.LogError($"Job id : {job.JobId}", exception);
-                await _auditor.AuditAsync(message.JobContextMessage, AuditEventType.ServiceFailed, $"Failed to update job status with exception : {exception}");
+                await _auditor.AuditAsync(
+                    message.JobContextMessage,
+                    AuditEventType.ServiceFailed,
+                    $"Failed to update job status with exception : {exception}");
+            }
+        }
+
+        public async Task MoveJobForCrossLoading(Jobs.Model.Job job)
+        {
+            if (job.CrossLoadingStatus.HasValue)
+            {
+                _logger.LogInfo($"Sending job id :{job.JobId} for cross loading");
+                await _crossLoadingService.SendMessageForCrossLoading(job.JobId);
+                _jobQueueManager.UpdateCrossLoadingStatus(job.JobId, JobStatusType.MovedForProcessing);
             }
         }
     }

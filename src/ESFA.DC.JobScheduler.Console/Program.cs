@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using Autofac;
-using ESFA.DC.Job.WebApi.Ioc;
 using ESFA.DC.JobScheduler.Console.Ioc;
 using ESFA.DC.JobScheduler.Interfaces;
 using ESFA.DC.Queueing.Interface.Configuration;

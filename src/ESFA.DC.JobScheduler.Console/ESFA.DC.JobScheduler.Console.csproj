@@ -46,6 +46,7 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ESFA.DC.JobSchduler.CrossLoading\ESFA.DC.JobSchduler.CrossLoading.csproj" />
     <ProjectReference Include="..\ESFA.DC.JobScheduler.Settings\ESFA.DC.JobScheduler.Settings.csproj" />
     <ProjectReference Include="..\ESFA.DC.JobScheduler\ESFA.DC.JobScheduler.csproj" />
   </ItemGroup>
