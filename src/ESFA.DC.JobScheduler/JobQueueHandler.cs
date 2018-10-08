@@ -129,8 +129,11 @@ namespace ESFA.DC.JobScheduler
             if (job.CrossLoadingStatus.HasValue)
             {
                 _logger.LogInfo($"Sending job id :{job.JobId} for cross loading");
-                await _crossLoadingService.SendMessageForCrossLoading(job.JobId);
-                _jobQueueManager.UpdateCrossLoadingStatus(job.JobId, JobStatusType.MovedForProcessing);
+                var result = await _crossLoadingService.SendMessageForCrossLoading(job.JobId);
+                if (result)
+                {
+                    _jobQueueManager.UpdateCrossLoadingStatus(job.JobId, JobStatusType.MovedForProcessing);
+                }
             }
         }
     }
