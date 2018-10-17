@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ESFA.DC.JobScheduler.Settin
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ESFA.DC.JobScheduler.Interfaces", "ESFA.DC.JobScheduler.Interfaces\ESFA.DC.JobScheduler.Interfaces.csproj", "{E6EEEBCA-FC18-4AC7-8178-3EFB236D70A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESFA.DC.JobSchduler.CrossLoading", "ESFA.DC.JobSchduler.CrossLoading\ESFA.DC.JobSchduler.CrossLoading.csproj", "{0513340D-5A0C-4BAD-9C06-EAF757A8D437}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ESFA.DC.JobSchduler.CrossLoading", "ESFA.DC.JobSchduler.CrossLoading\ESFA.DC.JobSchduler.CrossLoading.csproj", "{0513340D-5A0C-4BAD-9C06-EAF757A8D437}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
