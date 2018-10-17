@@ -6,6 +6,8 @@ using Autofac.Features.AttributeFilters;
 using ESFA.DC.Auditing;
 using ESFA.DC.Auditing.Dto;
 using ESFA.DC.Auditing.Interface;
+using ESFA.DC.CollectionsManagement.Services;
+using ESFA.DC.CollectionsManagement.Services.Interface;
 using ESFA.DC.CrossLoad;
 using ESFA.DC.CrossLoad.Dto;
 using ESFA.DC.DateTimeProvider.Interface;
@@ -57,6 +59,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
 
             builder.RegisterType<IlrMessageFactory>().Keyed<IMessageFactory>(JobType.IlrSubmission).WithAttributeFiltering().SingleInstance();
             builder.RegisterType<EsfMessageFactory>().Keyed<IMessageFactory>(JobType.EsfSubmission).WithAttributeFiltering().SingleInstance();
+            builder.RegisterType<ReturnCalendarService>().As<IReturnCalendarService>().InstancePerLifetimeScope();
 
             builder.Register(c => new QueuePublishService<AuditingDto>(
                     c.Resolve<AuditQueueConfiguration>(),
