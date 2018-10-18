@@ -7,6 +7,7 @@ using ESFA.DC.JobContext;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model;
 using ESFA.DC.Jobs.Model.Enums;
+using ESFA.DC.JobSchduler.CrossLoading;
 using ESFA.DC.JobScheduler.Interfaces;
 using ESFA.DC.JobScheduler.Interfaces.Models;
 using ESFA.DC.JobScheduler.Settings;
@@ -113,7 +114,8 @@ namespace ESFA.DC.JobScheduler.Tests
                 auditor ?? auditorMock.Object,
                 jobSchedulerStatusManagerMock.Object,
                 indexedMock.Object,
-                new Mock<ILogger>().Object);
+                new Mock<ILogger>().Object,
+                It.IsAny<ICrossLoadingService>());
 
             return queueHandler;
         }

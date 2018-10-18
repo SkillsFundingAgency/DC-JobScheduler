@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
-namespace ESFA.DC.Job.WebApi.Settings
+namespace ESFA.DC.JobScheduler.Settings
 {
     public class ConnectionStrings
     {
         [JsonRequired]
         public string AppLogs { get; set; }
+
+        [JsonRequired]
+        public string Organisation { get; set; }
     }
 }

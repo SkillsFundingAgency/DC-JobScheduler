@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using Autofac;
-using ESFA.DC.Job.WebApi.Settings;
+using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.Logging;
 using ESFA.DC.Logging.Config;
 using ESFA.DC.Logging.Config.Interfaces;
 using ESFA.DC.Logging.Enums;
 using ESFA.DC.Logging.Interfaces;
 
-namespace ESFA.DC.Job.WebApi.Ioc
+namespace ESFA.DC.JobScheduler.Console.Ioc
 {
     public class LoggerRegistrations : Module
     {
