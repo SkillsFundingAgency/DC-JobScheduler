@@ -20,6 +20,8 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
                 .Keyed<ITopicConfiguration>(JobType.IlrSubmission).SingleInstance();
             builder.Register(c => configuration.GetConfigSection<ServiceBusTopicConfiguration>("EsfTopicConfiguration"))
                 .Keyed<ITopicConfiguration>(JobType.EsfSubmission).SingleInstance();
+            builder.Register(c => configuration.GetConfigSection<ServiceBusTopicConfiguration>("EasTopicConfiguration"))
+                .Keyed<ITopicConfiguration>(JobType.EasSubmission).SingleInstance();
 
             builder.Register(c => configuration.GetConfigSection<AuditQueueConfiguration>())
                 .As<AuditQueueConfiguration>().SingleInstance();
@@ -31,6 +33,8 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
                 .As<IlrSecondStageMessageTopics>().SingleInstance();
             builder.Register(c => configuration.GetConfigSection<EsfMessageTopics>())
                 .As<EsfMessageTopics>().SingleInstance();
+            builder.Register(c => configuration.GetConfigSection<EasMessageTopics>())
+                .As<EasMessageTopics>().SingleInstance();
 
             builder.Register(c => configuration.GetConfigSection<ConnectionStrings>())
                 .As<ConnectionStrings>().SingleInstance();
