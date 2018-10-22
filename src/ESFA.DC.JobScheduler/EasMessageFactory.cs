@@ -14,18 +14,18 @@ using ESFA.DC.Queueing.Interface.Configuration;
 
 namespace ESFA.DC.JobScheduler
 {
-    public sealed class EsfMessageFactory : AbstractFileUploadMessageFactory
+    public sealed class EasMessageFactory : AbstractFileUploadMessageFactory
     {
-        private readonly EsfMessageTopics _esfMessageTopics;
+        private readonly EasMessageTopics _messageTopics;
 
-        public EsfMessageFactory(
-            EsfMessageTopics esfMessageTopics,
+        public EasMessageFactory(
+            EasMessageTopics messageTopics,
             ILogger logger,
             IFileUploadJobManager fileUploadMetaDataManager,
-            [KeyFilter(JobType.EsfSubmission)]ITopicConfiguration topicConfiguration)
+            [KeyFilter(JobType.EasSubmission)]ITopicConfiguration topicConfiguration)
             : base(logger, fileUploadMetaDataManager, topicConfiguration)
         {
-            _esfMessageTopics = esfMessageTopics;
+            _messageTopics = messageTopics;
         }
 
         public override void AddExtraKeys(JobContextMessage message, FileUploadJob metaData)
@@ -45,7 +45,7 @@ namespace ESFA.DC.JobScheduler
                 }
             };
 
-            topics.Add(new TopicItem(_esfMessageTopics.TopicProcessing, _esfMessageTopics.TopicProcessing, tasks));
+            topics.Add(new TopicItem(_messageTopics.TopicProcessing, _messageTopics.TopicProcessing, tasks));
             return topics;
         }
     }

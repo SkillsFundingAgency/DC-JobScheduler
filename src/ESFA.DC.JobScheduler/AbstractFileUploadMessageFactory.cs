@@ -50,7 +50,7 @@ namespace ESFA.DC.JobScheduler
 
             AddExtraKeys(contextMessage, job);
 
-            var message = new MessageParameters(JobType.IlrSubmission)
+            var message = new MessageParameters(job.JobType)
             {
                 JobContextMessage = contextMessage,
                 TopicParameters = new Dictionary<string, object>
