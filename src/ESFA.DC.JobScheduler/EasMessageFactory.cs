@@ -40,7 +40,12 @@ namespace ESFA.DC.JobScheduler
             {
                 new TaskItem()
                 {
-                    Tasks = new List<string>() { string.Empty },
+                    Tasks = new List<string>()
+                    {
+                        _messageTopics.TopicProcessing_TaskValidation,
+                        _messageTopics.TopicProcessing_TaskStorage,
+                        _messageTopics.TopicProcessing_TaskReporting
+                    },
                     SupportsParallelExecution = false
                 }
             };
