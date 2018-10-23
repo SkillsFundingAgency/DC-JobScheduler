@@ -59,6 +59,8 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
 
             builder.RegisterType<IlrMessageFactory>().Keyed<IMessageFactory>(JobType.IlrSubmission).WithAttributeFiltering().SingleInstance();
             builder.RegisterType<EsfMessageFactory>().Keyed<IMessageFactory>(JobType.EsfSubmission).WithAttributeFiltering().SingleInstance();
+            builder.RegisterType<EsfMessageFactory>().Keyed<IMessageFactory>(JobType.EasSubmission).WithAttributeFiltering().SingleInstance();
+
             builder.RegisterType<ReturnCalendarService>().As<IReturnCalendarService>().InstancePerLifetimeScope();
 
             builder.Register(c => new QueuePublishService<AuditingDto>(
@@ -103,6 +105,12 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
                 var config = context.ResolveKeyed<ITopicConfiguration>(JobType.EsfSubmission);
                 return new TopicPublishService<JobContextDto>(config, context.Resolve<IJsonSerializationService>());
             }).Keyed<ITopicPublishService<JobContextDto>>(JobType.EsfSubmission).InstancePerLifetimeScope();
+
+            builder.Register(context =>
+            {
+                var config = context.ResolveKeyed<ITopicConfiguration>(JobType.EasSubmission);
+                return new TopicPublishService<JobContextDto>(config, context.Resolve<IJsonSerializationService>());
+            }).Keyed<ITopicPublishService<JobContextDto>>(JobType.EasSubmission).InstancePerLifetimeScope();
         }
     }
 }
