@@ -48,5 +48,8 @@ namespace ESFA.DC.JobScheduler.Settings
 
         [JsonRequired]
         public string TopicReports_TaskGenerateDataMatchReport { get; set; }
+
+        [JsonRequired]
+        public string TopicFunding_TaskPerformFM81Calculation { get; set; }
     }
 }
