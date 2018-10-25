@@ -64,6 +64,7 @@ namespace ESFA.DC.JobScheduler
             message.KeyValuePairs.Add(JobContextMessageKey.FundingFm25Output, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.FundingFm25Output));
             message.KeyValuePairs.Add(JobContextMessageKey.FundingFm36Output, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, JobContextMessageKey.FundingFm36Output));
             message.KeyValuePairs.Add("FundingFm70Output", _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, "FundingFm70Output"));
+            message.KeyValuePairs.Add("FundingFm81Output", _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, "FundingFm81Output"));
         }
 
         public override List<TopicItem> CreateTopics(bool isFirstStage)
@@ -112,6 +113,7 @@ namespace ESFA.DC.JobScheduler
                             _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM35Calculation,
                             _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM36Calculation,
                             _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM70Calculation,
+                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM81Calculation,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
                         },
                         SupportsParallelExecution = false
