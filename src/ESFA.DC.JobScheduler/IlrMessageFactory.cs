@@ -92,7 +92,8 @@ namespace ESFA.DC.JobScheduler
                         {
                             Tasks = new List<string>()
                             {
-                                _ilrFirstStageMessageTopics.TopicReports_TaskGenerateValidationReport
+                                _ilrFirstStageMessageTopics.TopicReports_TaskGenerateValidationReport,
+                                _ilrSecondStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
                             },
                             SupportsParallelExecution = false
                         }
@@ -113,8 +114,7 @@ namespace ESFA.DC.JobScheduler
                             _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM35Calculation,
                             _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM36Calculation,
                             _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM70Calculation,
-                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM81Calculation,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
+                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM81Calculation
                         },
                         SupportsParallelExecution = false
                     }
@@ -144,7 +144,8 @@ namespace ESFA.DC.JobScheduler
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateValidationReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAllbOccupancyReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateFundingSummaryReport,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMainOccupancyReport
+                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMainOccupancyReport,
+                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
                         },
                         SupportsParallelExecution = false
                     }
