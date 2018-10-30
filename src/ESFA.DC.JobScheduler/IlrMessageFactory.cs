@@ -93,7 +93,7 @@ namespace ESFA.DC.JobScheduler
                             Tasks = new List<string>()
                             {
                                 _ilrFirstStageMessageTopics.TopicReports_TaskGenerateValidationReport,
-                                _ilrSecondStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
+                                //_ilrSecondStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
                             },
                             SupportsParallelExecution = false
                         }
@@ -146,6 +146,7 @@ namespace ESFA.DC.JobScheduler
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateFundingSummaryReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMainOccupancyReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
+                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMathsAndEnglishReport,
                         },
                         SupportsParallelExecution = false
                     }
