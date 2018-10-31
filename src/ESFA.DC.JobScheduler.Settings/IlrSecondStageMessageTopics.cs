@@ -54,5 +54,11 @@ namespace ESFA.DC.JobScheduler.Settings
 
         [JsonRequired]
         public string TopicReports_TaskGenerateMathsAndEnglishReport { get; set; }
+
+        [JsonRequired]
+        public string TopicReports_TaskGenerateAppsAdditionalPaymentsReport { get; set; }
+
+        [JsonRequired]
+        public string TopicReports_TaskGenerateAppsIndicativeEarningsReport { get; set; }
     }
 }

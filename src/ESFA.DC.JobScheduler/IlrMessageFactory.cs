@@ -147,6 +147,8 @@ namespace ESFA.DC.JobScheduler
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMainOccupancyReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMathsAndEnglishReport,
+                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAppsIndicativeEarningsReport,
+                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAppsAdditionalPaymentsReport,
                         },
                         SupportsParallelExecution = false
                     }
