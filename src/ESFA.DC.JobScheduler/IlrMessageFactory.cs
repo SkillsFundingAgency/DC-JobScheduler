@@ -89,7 +89,7 @@ namespace ESFA.DC.JobScheduler
                     {
                         Tasks = new List<string>()
                         {
-                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM36Calculation,
+                            _ilrFirstStageMessageTopics.TopicFunding_TaskPerformFM36Calculation,
                         },
                         SupportsParallelExecution = false
                     }
