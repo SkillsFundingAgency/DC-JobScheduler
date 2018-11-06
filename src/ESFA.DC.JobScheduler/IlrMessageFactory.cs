@@ -83,6 +83,18 @@ namespace ESFA.DC.JobScheduler
             if (isFirstStage)
             {
                 topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicValidation, _ilrFirstStageMessageTopics.TopicValidation, tasks));
+                topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicFunding, _ilrFirstStageMessageTopics.TopicFunding, new List<ITaskItem>()
+                {
+                    new TaskItem()
+                    {
+                        Tasks = new List<string>()
+                        {
+                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM36Calculation,
+                        },
+                        SupportsParallelExecution = false
+                    }
+                }));
+
                 topics.Add(new TopicItem(
                     _ilrFirstStageMessageTopics.TopicReports,
                     _ilrFirstStageMessageTopics.TopicReports,
@@ -93,7 +105,7 @@ namespace ESFA.DC.JobScheduler
                             Tasks = new List<string>()
                             {
                                 _ilrFirstStageMessageTopics.TopicReports_TaskGenerateValidationReport,
-                                _ilrSecondStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
+                                _ilrFirstStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
                             },
                             SupportsParallelExecution = false
                         }
