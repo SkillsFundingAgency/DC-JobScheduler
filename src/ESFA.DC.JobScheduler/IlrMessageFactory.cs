@@ -61,7 +61,7 @@ namespace ESFA.DC.JobScheduler
             message.KeyValuePairs.Add(JobContextMessageKey.FundingFm36Output, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, JobContextMessageKey.FundingFm36Output));
             message.KeyValuePairs.Add("FundingFm70Output", _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, "FundingFm70Output"));
             message.KeyValuePairs.Add("FundingFm81Output", _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, "FundingFm81Output"));
-            message.KeyValuePairs.Add("OriginalFilename", message.KeyValuePairs[JobContextMessageKey.Filename].ToString());
+            message.KeyValuePairs.Add("OriginalFilename", metaData.FileName);
         }
 
         public override List<TopicItem> CreateTopics(bool isFirstStage)
@@ -102,8 +102,8 @@ namespace ESFA.DC.JobScheduler
                         {
                             Tasks = new List<string>()
                             {
-                                _ilrFirstStageMessageTopics.TopicReports_TaskGenerateValidationReport,
                                 _ilrFirstStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
+                                _ilrFirstStageMessageTopics.TopicReports_TaskGenerateValidationReport
                             },
                             SupportsParallelExecution = false
                         }
@@ -152,11 +152,11 @@ namespace ESFA.DC.JobScheduler
                     {
                         Tasks = new List<string>()
                         {
+                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateValidationReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAllbOccupancyReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateFundingSummaryReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMainOccupancyReport,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMathsAndEnglishReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAppsIndicativeEarningsReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAppsAdditionalPaymentsReport,

@@ -118,10 +118,10 @@ namespace ESFA.DC.JobScheduler.Tests
             result.Any(x => x.SubscriptionName == "deds" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("task_persist")))).Should().BeTrue();
             result.Any(x => x.SubscriptionName == "funding" && x.Tasks != null).Should().BeTrue();
             result.Any(x => x.SubscriptionName == "reports" && x.Tasks != null).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("val_report")))).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("mo_report")))).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("alb_report")))).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("fs_report")))).Should().BeTrue();
+            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z != null && z.Contains("val_report")))).Should().BeTrue();
+            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z != null && z.Contains("mo_report")))).Should().BeTrue();
+            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z != null && z.Contains("alb_report")))).Should().BeTrue();
+            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z != null && z.Contains("fs_report")))).Should().BeTrue();
         }
 
         private IlrMessageFactory GetFactory(bool isFirstStage = true, FileUploadJob job = null)
@@ -139,7 +139,10 @@ namespace ESFA.DC.JobScheduler.Tests
             {
                 TopicValidation = "Val",
                 TopicReports = "reports",
-                TopicReports_TaskGenerateValidationReport = "task_validationreports"
+                TopicReports_TaskGenerateValidationReport = "task_validationreports",
+                TopicFunding = "funding",
+                TopicFunding_TaskPerformFM36Calculation = "fm36",
+                TopicReports_TaskGenerateDataMatchReport = "task_datamatchreports"
             };
 
             var secondStageTopics = new IlrSecondStageMessageTopics()
