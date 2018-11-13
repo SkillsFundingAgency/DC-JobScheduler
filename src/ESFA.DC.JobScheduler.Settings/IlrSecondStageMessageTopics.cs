@@ -5,6 +5,9 @@ namespace ESFA.DC.JobScheduler.Settings
     public class IlrSecondStageMessageTopics
     {
         [JsonRequired]
+        public string TopicFileValidation { get; set; }
+
+        [JsonRequired]
         public string TopicValidation { get; set; }
 
         [JsonRequired]

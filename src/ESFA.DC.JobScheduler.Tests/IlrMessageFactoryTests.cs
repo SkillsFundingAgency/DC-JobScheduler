@@ -38,7 +38,7 @@ namespace ESFA.DC.JobScheduler.Tests
             result.Should().NotBeNull();
             result.JobType.Should().Be(JobType.IlrSubmission);
             result.JobContextMessage.JobId.Should().Be(10);
-            result.JobContextMessage.Topics.Count.Should().Be(4);
+            result.JobContextMessage.Topics.Count.Should().Be(5);
             result.SubscriptionLabel.Should().Be("Validation");
             result.TopicParameters.ContainsKey("To").Should().Be(true);
         }
@@ -48,7 +48,11 @@ namespace ESFA.DC.JobScheduler.Tests
         [InlineData(false)]
         public void AddExtraKeys_Test(bool isFirstStage)
         {
-           var message = new JobContextMessage();
+            var message = new JobContextMessage()
+            {
+                KeyValuePairs = new Dictionary<string, object>()
+            };
+
             var job = new FileUploadJob()
             {
                 FileSize = 123,
@@ -60,6 +64,8 @@ namespace ESFA.DC.JobScheduler.Tests
                 DateTimeSubmittedUtc = new DateTime(2018, 10, 10),
                 IsFirstStage = isFirstStage,
             };
+
+            message.KeyValuePairs.Add("Filename", job.FileName);
 
             var factory = GetFactory(isFirstStage, job);
 
@@ -92,7 +98,7 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var result = factory.CreateTopics(true);
             result.Should().BeAssignableTo<IEnumerable<TopicItem>>();
-            result.Count.Should().Be(3);
+            result.Count.Should().Be(4);
             result.Any(x => x.SubscriptionName == "Val" && x.Tasks != null).Should().BeTrue();
             result.Any(x => x.SubscriptionName == "reports" && x.Tasks != null).Should().BeTrue();
             result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("task_validationreports")))).Should().BeTrue();
@@ -105,7 +111,7 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var result = factory.CreateTopics(false);
             result.Should().BeAssignableTo<IEnumerable<TopicItem>>();
-            result.Count.Should().Be(4);
+            result.Count.Should().Be(5);
             result.Any(x => x.SubscriptionName == "Val" && x.Tasks != null).Should().BeTrue();
             result.Any(x => x.SubscriptionName == "reports" && x.Tasks != null).Should().BeTrue();
             result.Any(x => x.SubscriptionName == "deds" && x.Tasks != null).Should().BeTrue();

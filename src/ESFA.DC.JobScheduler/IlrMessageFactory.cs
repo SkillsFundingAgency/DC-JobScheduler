@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Autofac.Features.AttributeFilters;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model;
 using ESFA.DC.Jobs.Model.Enums;
-using ESFA.DC.JobScheduler.Interfaces;
-using ESFA.DC.JobScheduler.Interfaces.Models;
 using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.KeyGenerator.Interface;
 using ESFA.DC.Logging.Interfaces;
@@ -83,6 +79,7 @@ namespace ESFA.DC.JobScheduler
 
             if (isFirstStage)
             {
+                topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicFileValidation, _ilrFirstStageMessageTopics.TopicFileValidation, new List<ITaskItem>()));
                 topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicValidation, _ilrFirstStageMessageTopics.TopicValidation, tasks));
                 topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicFunding, _ilrFirstStageMessageTopics.TopicFunding, new List<ITaskItem>()
                 {
@@ -114,6 +111,7 @@ namespace ESFA.DC.JobScheduler
             }
             else
             {
+                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicFileValidation, _ilrSecondStageMessageTopics.TopicFileValidation, new List<ITaskItem>()));
                 topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicValidation, _ilrSecondStageMessageTopics.TopicValidation, tasks));
 
                 topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicFunding, _ilrSecondStageMessageTopics.TopicFunding, new List<ITaskItem>()
