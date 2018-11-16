@@ -65,7 +65,7 @@ namespace ESFA.DC.JobScheduler
                         Job refDataJob = new Job()
                         {
                             DateTimeSubmittedUtc = _dateTimeProvider.GetNowUtc(),
-                            JobType = JobType.ReferenceData,
+                           // JobType = JobType.ReferenceData,
                             Priority = 1,
                             Status = JobStatusType.Ready,
                             SubmittedBy = "System"
