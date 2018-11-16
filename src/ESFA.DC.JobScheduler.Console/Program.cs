@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Autofac;
 using ESFA.DC.JobScheduler.Console.Ioc;
 using ESFA.DC.JobScheduler.Interfaces;
@@ -39,7 +40,7 @@ namespace ESFA.DC.JobScheduler.Console
             using (var scope = container.BeginLifetimeScope())
             {
                 var schedular = scope.Resolve<IJobQueueHandler>();
-                schedular.ProcessNextJobAsync().GetAwaiter().GetResult();
+                schedular.ProcessNextJobAsync(CancellationToken.None).GetAwaiter().GetResult();
                 System.Console.ReadLine();
             }
 

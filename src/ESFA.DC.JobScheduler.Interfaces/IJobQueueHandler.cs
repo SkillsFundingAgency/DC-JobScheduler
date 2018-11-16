@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace ESFA.DC.JobScheduler.Interfaces
 {
     public interface IJobQueueHandler
     {
-        Task ProcessNextJobAsync();
+        Task ProcessNextJobAsync(CancellationToken cancellationToken);
 
         Task MoveJobForProcessing(Jobs.Model.Job job);
     }
