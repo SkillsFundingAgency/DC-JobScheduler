@@ -149,10 +149,10 @@ namespace ESFA.DC.JobScheduler
         {
             if (job.CrossLoadingStatus.HasValue)
             {
-                _logger.LogInfo($"Sending job id :{job.JobId} for cross loading");
                 var result = await _crossLoadingService.SendMessageForCrossLoading(job.JobId);
                 if (result)
                 {
+                    _logger.LogInfo($"Sent job id :{job.JobId} for cross loading");
                     _jobQueueManager.UpdateCrossLoadingStatus(job.JobId, JobStatusType.MovedForProcessing);
                 }
             }
