@@ -6,8 +6,6 @@ using Autofac.Features.AttributeFilters;
 using ESFA.DC.Auditing;
 using ESFA.DC.Auditing.Dto;
 using ESFA.DC.Auditing.Interface;
-using ESFA.DC.CollectionsManagement.Services;
-using ESFA.DC.CollectionsManagement.Services.Interface;
 using ESFA.DC.CrossLoad;
 using ESFA.DC.CrossLoad.Dto;
 using ESFA.DC.DateTimeProvider.Interface;
@@ -17,7 +15,9 @@ using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobNotifications;
 using ESFA.DC.JobNotifications.Interfaces;
 using ESFA.DC.JobQueueManager;
+using ESFA.DC.JobQueueManager.ExternalData;
 using ESFA.DC.JobQueueManager.Interfaces;
+using ESFA.DC.JobQueueManager.Interfaces.ExternalData;
 using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobSchduler.CrossLoading;
 using ESFA.DC.JobScheduler.Interfaces;
@@ -62,6 +62,9 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.RegisterType<EsfMessageFactory>().Keyed<IMessageFactory>(JobType.EasSubmission).WithAttributeFiltering().SingleInstance();
 
             builder.RegisterType<ReturnCalendarService>().As<IReturnCalendarService>().InstancePerLifetimeScope();
+            builder.RegisterType<ExternalDataScheduleService>().As<IExternalDataScheduleService>().InstancePerLifetimeScope();
+            builder.RegisterType<ScheduleService>().As<IScheduleService>().InstancePerLifetimeScope();
+            builder.RegisterType<JobSchedulerStatusManager>().As<IJobSchedulerStatusManager>().InstancePerLifetimeScope();
 
             builder.Register(c => new QueuePublishService<AuditingDto>(
                     c.Resolve<AuditQueueConfiguration>(),
