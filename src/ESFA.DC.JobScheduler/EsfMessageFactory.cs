@@ -30,6 +30,7 @@ namespace ESFA.DC.JobScheduler
 
         public override void AddExtraKeys(JobContextMessage message, FileUploadJob metaData)
         {
+            message.KeyValuePairs[JobContextMessageKey.UkPrn] = metaData.Ukprn;
         }
 
         public override List<TopicItem> CreateTopics(bool isFirstStage)

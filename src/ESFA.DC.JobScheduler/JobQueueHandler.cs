@@ -61,17 +61,17 @@ namespace ESFA.DC.JobScheduler
                 {
                     if (await _jobSchedulerStatusManager.IsJobQueueProcessingEnabledAsync())
                     {
-                        IEnumerable<string> messageTasks = await _externalDataScheduleService.GetJobs(true, cancellationToken);
-                        Job refDataJob = new Job()
-                        {
-                            DateTimeSubmittedUtc = _dateTimeProvider.GetNowUtc(),
-                           // JobType = JobType.ReferenceData,
-                            Priority = 1,
-                            Status = JobStatusType.Ready,
-                            SubmittedBy = "System"
-                        };
+                        //IEnumerable<JobType> messageTasks = await _externalDataScheduleService.GetJobs(true, cancellationToken);
+                        //Job refDataJob = new Job()
+                        //{
+                        //    DateTimeSubmittedUtc = _dateTimeProvider.GetNowUtc(),s
+                        //    JobType = messageTasks.,
+                        //    Priority = 1,
+                        //    Status = JobStatusType.Ready,
+                        //    SubmittedBy = "System"
+                        //};
 
-                        long id = _jobQueueManager.AddJob(refDataJob);
+                        //long id = _jobQueueManager.AddJob(refDataJob);
 
                         IEnumerable<Job> jobs = await _jobQueueManager.GetJobsByPriorityAsync(25);
 
