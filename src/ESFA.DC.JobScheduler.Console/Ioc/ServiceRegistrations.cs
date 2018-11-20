@@ -60,7 +60,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
 
             builder.RegisterType<IlrMessageFactory>().Keyed<IMessageFactory>(JobType.IlrSubmission).WithAttributeFiltering().SingleInstance();
             builder.RegisterType<EsfMessageFactory>().Keyed<IMessageFactory>(JobType.EsfSubmission).WithAttributeFiltering().SingleInstance();
-            builder.RegisterType<EsfMessageFactory>().Keyed<IMessageFactory>(JobType.EasSubmission).WithAttributeFiltering().SingleInstance();
+            builder.RegisterType<EasMessageFactory>().Keyed<IMessageFactory>(JobType.EasSubmission).WithAttributeFiltering().SingleInstance();
 
             builder.RegisterType<ReturnCalendarService>().As<IReturnCalendarService>().InstancePerLifetimeScope();
             builder.RegisterType<ExternalDataScheduleService>().As<IExternalDataScheduleService>().InstancePerLifetimeScope();
