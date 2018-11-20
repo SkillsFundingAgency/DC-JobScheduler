@@ -25,6 +25,7 @@
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.2" />
     <PackageReference Include="ESFA.DC.Auditing" Version="0.1.9-beta0001" />
     <PackageReference Include="ESFA.DC.Auditing.Interface" Version="0.1.9-beta0001" />
+    <PackageReference Include="ESFA.DC.CollectionsManagement.Models" Version="0.1.6-beta0001" />
     <PackageReference Include="ESFA.DC.DateTimeProvider" Version="0.1.6-beta0001" />
     <PackageReference Include="ESFA.DC.DateTimeProvider.Interface" Version="0.1.6-beta0001" />
     <PackageReference Include="ESFA.DC.JobContext" Version="0.1.16-beta0001" />
