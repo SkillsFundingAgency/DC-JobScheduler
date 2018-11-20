@@ -15,6 +15,7 @@ using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobNotifications;
 using ESFA.DC.JobNotifications.Interfaces;
 using ESFA.DC.JobQueueManager;
+using ESFA.DC.JobQueueManager.Data;
 using ESFA.DC.JobQueueManager.ExternalData;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.JobQueueManager.Interfaces.ExternalData;
@@ -81,14 +82,14 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.Register(context =>
                 {
                     var queueManagerSettings = context.Resolve<JobQueueManagerSettings>();
-                    var optionsBuilder = new DbContextOptionsBuilder();
+                    var optionsBuilder = new DbContextOptionsBuilder<JobQueueDataContext>();
                     optionsBuilder.UseSqlServer(
                         queueManagerSettings.ConnectionString,
                         options => options.EnableRetryOnFailure(3, TimeSpan.FromSeconds(3), new List<int>()));
 
                     return optionsBuilder.Options;
                 })
-                .As<DbContextOptions>()
+                .As<DbContextOptions<JobQueueDataContext>>()
                 .SingleInstance();
 
             builder.Register(context =>
