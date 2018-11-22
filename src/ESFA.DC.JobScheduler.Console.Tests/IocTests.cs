@@ -3,6 +3,7 @@ using Autofac;
 using Autofac.Builder;
 using ESFA.DC.Auditing.Interface;
 using ESFA.DC.JobContext;
+using ESFA.DC.JobQueueManager.Data;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.JobScheduler.Console.Ioc;
 using ESFA.DC.JobScheduler.Interfaces;
@@ -36,7 +37,7 @@ namespace ESFA.DC.JobScheduler.Console.Tests
                 //container.IsRegistered(typeof(ITopicPublishService<JobContextDto>)).Should().BeTrue();
                 container.IsRegistered(typeof(IJsonSerializationService)).Should().BeTrue();
                 container.IsRegistered(typeof(IAuditor)).Should().BeTrue();
-                container.IsRegistered(typeof(DbContextOptions)).Should().BeTrue();
+                container.IsRegistered(typeof(DbContextOptions<JobQueueDataContext>)).Should().BeTrue();
                 container.IsRegistered(typeof(ILogger)).Should().BeTrue();
             }
         }

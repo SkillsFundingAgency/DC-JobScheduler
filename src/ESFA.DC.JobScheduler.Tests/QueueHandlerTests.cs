@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Autofac.Features.Indexed;
 using ESFA.DC.Auditing.Interface;
+using ESFA.DC.DateTimeProvider.Interface;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobQueueManager.Interfaces;
+using ESFA.DC.JobQueueManager.Interfaces.ExternalData;
 using ESFA.DC.Jobs.Model;
 using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobSchduler.CrossLoading;
@@ -28,7 +31,7 @@ namespace ESFA.DC.JobScheduler.Tests
         {
             var queueHandler = GetJobQueueHandler();
 
-            Task.Factory.StartNew(() => queueHandler.ProcessNextJobAsync().ConfigureAwait(true)).Wait(TimeSpan.FromSeconds(2));
+            Task.Factory.StartNew(() => queueHandler.ProcessNextJobAsync(CancellationToken.None).ConfigureAwait(true)).Wait(TimeSpan.FromSeconds(2));
             //jobQueueManagerMock.Verify(x => x.GetJobByPriority(), Times.AtLeastOnce);
         }
 
@@ -42,7 +45,7 @@ namespace ESFA.DC.JobScheduler.Tests
             };
 
             var jobQueueManagerMock = new Mock<IJobManager>();
-            jobQueueManagerMock.Setup(x => x.GetJobByPriority()).Returns(new Jobs.Model.Job());
+            jobQueueManagerMock.Setup(x => x.GetJobsByPriorityAsync(It.IsAny<int>())).ReturnsAsync(new List<Job>() { new Jobs.Model.Job() });
             jobQueueManagerMock.Setup(x => x.UpdateJobStatus(It.IsAny<long>(), It.IsAny<JobStatusType>())).Returns(true);
 
             var auditorMock = new Mock<IAuditor>();
@@ -71,7 +74,7 @@ namespace ESFA.DC.JobScheduler.Tests
             };
 
             var jobQueueManagerMock = new Mock<IJobManager>();
-            jobQueueManagerMock.Setup(x => x.GetJobByPriority()).Returns(new Jobs.Model.Job());
+            jobQueueManagerMock.Setup(x => x.GetJobsByPriorityAsync(It.IsAny<int>())).ReturnsAsync(new List<Job>() { new Jobs.Model.Job() });
             jobQueueManagerMock.Setup(x => x.UpdateJobStatus(It.IsAny<long>(), It.IsAny<JobStatusType>())).Returns(false);
 
             var auditorMock = new Mock<IAuditor>();
@@ -96,7 +99,7 @@ namespace ESFA.DC.JobScheduler.Tests
             jobSchedulerStatusManagerMock.Setup(x => x.IsJobQueueProcessingEnabledAsync()).ReturnsAsync(true);
 
             var jobQueueManagerMock = new Mock<IJobManager>();
-            jobQueueManagerMock.Setup(x => x.GetJobByPriority()).Returns(new Jobs.Model.Job());
+            jobQueueManagerMock.Setup(x => x.GetJobsByPriorityAsync(It.IsAny<int>())).ReturnsAsync(new List<Job>() { new Jobs.Model.Job() });
 
             var auditorMock = new Mock<IAuditor>();
             auditorMock.Setup(x => x.AuditAsync(It.IsAny<JobContext.JobContextMessage>(), AuditEventType.ServiceFailed, It.IsAny<string>())).Returns(Task.CompletedTask);
@@ -108,6 +111,10 @@ namespace ESFA.DC.JobScheduler.Tests
             var indexedMock = new Mock<IIndex<JobType, IMessageFactory>>();
             indexedMock.SetupGet(x => x[JobType.IlrSubmission]).Returns(messageFactoryMock.Object);
 
+            var dateTimeProviderMock = new Mock<IDateTimeProvider>();
+
+            var externalDataScheduleServiceMock = new Mock<IExternalDataScheduleService>();
+
             var queueHandler = new JobQueueHandler(
                 messagingService ?? new Mock<IMessagingService>().Object,
                 jobQueueManager ?? jobQueueManagerMock.Object,
@@ -115,7 +122,9 @@ namespace ESFA.DC.JobScheduler.Tests
                 jobSchedulerStatusManagerMock.Object,
                 indexedMock.Object,
                 new Mock<ILogger>().Object,
-                It.IsAny<ICrossLoadingService>());
+                It.IsAny<ICrossLoadingService>(),
+                dateTimeProviderMock.Object,
+                externalDataScheduleServiceMock.Object);
 
             return queueHandler;
         }

@@ -15,5 +15,14 @@ namespace ESFA.DC.JobScheduler.Settings
 
         [JsonRequired]
         public string TopicProcessing_TaskReporting { get; set; }
+
+        [JsonRequired]
+        public string TopicReports_TaskGenerateAdultFundingClaimReport { get; set; }
+
+        [JsonRequired]
+        public string TopicReports { get; set; }
+
+        [JsonRequired]
+        public string TopicReports_TaskGenerateFundingSummaryReport { get; set; }
     }
 }

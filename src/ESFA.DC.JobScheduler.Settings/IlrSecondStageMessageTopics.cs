@@ -5,6 +5,9 @@ namespace ESFA.DC.JobScheduler.Settings
     public class IlrSecondStageMessageTopics
     {
         [JsonRequired]
+        public string TopicFileValidation { get; set; }
+
+        [JsonRequired]
         public string TopicValidation { get; set; }
 
         [JsonRequired]
@@ -48,5 +51,17 @@ namespace ESFA.DC.JobScheduler.Settings
 
         [JsonRequired]
         public string TopicReports_TaskGenerateDataMatchReport { get; set; }
+
+        [JsonRequired]
+        public string TopicFunding_TaskPerformFM81Calculation { get; set; }
+
+        [JsonRequired]
+        public string TopicReports_TaskGenerateMathsAndEnglishReport { get; set; }
+
+        [JsonRequired]
+        public string TopicReports_TaskGenerateAppsAdditionalPaymentsReport { get; set; }
+
+        [JsonRequired]
+        public string TopicReports_TaskGenerateAppsIndicativeEarningsReport { get; set; }
     }
 }

@@ -51,6 +51,22 @@ namespace ESFA.DC.JobScheduler
             };
 
             topics.Add(new TopicItem(_messageTopics.TopicProcessing, _messageTopics.TopicProcessing, tasks));
+
+            topics.Add(new TopicItem(
+                _messageTopics.TopicReports,
+                _messageTopics.TopicReports,
+                new List<ITaskItem>()
+                {
+                    new TaskItem()
+                    {
+                        Tasks = new List<string>()
+                        {
+                            _messageTopics.TopicReports_TaskGenerateAdultFundingClaimReport,
+                            _messageTopics.TopicReports_TaskGenerateFundingSummaryReport
+                        },
+                        SupportsParallelExecution = false
+                    }
+                }));
             return topics;
         }
     }

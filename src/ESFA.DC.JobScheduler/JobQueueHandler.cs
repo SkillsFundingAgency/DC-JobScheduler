@@ -4,9 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Autofac.Features.Indexed;
 using ESFA.DC.Auditing.Interface;
+using ESFA.DC.DateTimeProvider.Interface;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
+using ESFA.DC.JobQueueManager.Interfaces.ExternalData;
+using ESFA.DC.Jobs.Model;
 using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobSchduler.CrossLoading;
 using ESFA.DC.JobScheduler.Interfaces;
@@ -25,6 +28,8 @@ namespace ESFA.DC.JobScheduler
         private readonly IIndex<JobType, IMessageFactory> _jobContextMessageFactories;
         private readonly ILogger _logger;
         private readonly ICrossLoadingService _crossLoadingService;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IExternalDataScheduleService _externalDataScheduleService;
 
         public JobQueueHandler(
             IMessagingService messagingService,
@@ -33,7 +38,9 @@ namespace ESFA.DC.JobScheduler
             IJobSchedulerStatusManager jobSchedulerStatusManager,
             IIndex<JobType, IMessageFactory> jobContextMessageFactories,
             ILogger logger,
-            ICrossLoadingService crossLoadingService)
+            ICrossLoadingService crossLoadingService,
+            IDateTimeProvider dateTimeProvider,
+            IExternalDataScheduleService externalDataScheduleService)
         {
             _jobSchedulerStatusManager = jobSchedulerStatusManager;
             _jobQueueManager = jobQueueManager;
@@ -42,9 +49,11 @@ namespace ESFA.DC.JobScheduler
             _jobContextMessageFactories = jobContextMessageFactories;
             _logger = logger;
             _crossLoadingService = crossLoadingService;
+            _dateTimeProvider = dateTimeProvider;
+            _externalDataScheduleService = externalDataScheduleService;
         }
 
-        public async Task ProcessNextJobAsync()
+        public async Task ProcessNextJobAsync(CancellationToken cancellationToken)
         {
             while (true)
             {
@@ -52,9 +61,21 @@ namespace ESFA.DC.JobScheduler
                 {
                     if (await _jobSchedulerStatusManager.IsJobQueueProcessingEnabledAsync())
                     {
-                        var job = _jobQueueManager.GetJobByPriority();
+                        //IEnumerable<JobType> messageTasks = await _externalDataScheduleService.GetJobs(true, cancellationToken);
+                        //Job refDataJob = new Job()
+                        //{
+                        //    DateTimeSubmittedUtc = _dateTimeProvider.GetNowUtc(),s
+                        //    JobType = messageTasks.,
+                        //    Priority = 1,
+                        //    Status = JobStatusType.Ready,
+                        //    SubmittedBy = "System"
+                        //};
 
-                        if (job != null)
+                        //long id = _jobQueueManager.AddJob(refDataJob);
+
+                        IEnumerable<Job> jobs = await _jobQueueManager.GetJobsByPriorityAsync(25);
+
+                        foreach (Job job in jobs)
                         {
                             _logger.LogInfo($"Got job id : {job.JobId}");
                             await MoveJobForProcessing(job);
@@ -128,10 +149,10 @@ namespace ESFA.DC.JobScheduler
         {
             if (job.CrossLoadingStatus.HasValue)
             {
-                _logger.LogInfo($"Sending job id :{job.JobId} for cross loading");
                 var result = await _crossLoadingService.SendMessageForCrossLoading(job.JobId);
                 if (result)
                 {
+                    _logger.LogInfo($"Sent job id :{job.JobId} for cross loading");
                     _jobQueueManager.UpdateCrossLoadingStatus(job.JobId, JobStatusType.MovedForProcessing);
                 }
             }
