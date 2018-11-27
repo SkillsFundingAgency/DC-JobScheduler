@@ -98,7 +98,7 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var result = factory.CreateTopics(true);
             result.Should().BeAssignableTo<IEnumerable<TopicItem>>();
-            result.Count.Should().Be(4);
+            result.Count.Should().Be(3);
             result.Any(x => x.SubscriptionName == "Val" && x.Tasks != null).Should().BeTrue();
             result.Any(x => x.SubscriptionName == "reports" && x.Tasks != null).Should().BeTrue();
             result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("task_validationreports")))).Should().BeTrue();
