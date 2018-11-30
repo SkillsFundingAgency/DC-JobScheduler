@@ -63,5 +63,8 @@ namespace ESFA.DC.JobScheduler.Settings
 
         [JsonRequired]
         public string TopicReports_TaskGenerateAppsIndicativeEarningsReport { get; set; }
+
+        [JsonRequired]
+        public string TopicReports_TaskGenerateTrailblazerEmployerIncentivesReport { get; set; }
     }
 }
