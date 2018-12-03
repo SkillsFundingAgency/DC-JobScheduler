@@ -83,17 +83,17 @@ namespace ESFA.DC.JobScheduler
             {
                 topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicFileValidation, _ilrFirstStageMessageTopics.TopicFileValidation, new List<ITaskItem>()));
                 topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicValidation, _ilrFirstStageMessageTopics.TopicValidation, tasks));
-                topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicFunding, _ilrFirstStageMessageTopics.TopicFunding, new List<ITaskItem>()
-                {
-                    new TaskItem()
-                    {
-                        Tasks = new List<string>()
-                        {
-                            _ilrFirstStageMessageTopics.TopicFunding_TaskPerformFM36Calculation,
-                        },
-                        SupportsParallelExecution = false
-                    }
-                }));
+                //topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicFunding, _ilrFirstStageMessageTopics.TopicFunding, new List<ITaskItem>()
+                //{
+                //    new TaskItem()
+                //    {
+                //        Tasks = new List<string>()
+                //        {
+                //            _ilrFirstStageMessageTopics.TopicFunding_TaskPerformFM36Calculation,
+                //        },
+                //        SupportsParallelExecution = false
+                //    }
+                //}));
 
                 topics.Add(new TopicItem(
                     _ilrFirstStageMessageTopics.TopicReports,
@@ -104,7 +104,7 @@ namespace ESFA.DC.JobScheduler
                         {
                             Tasks = new List<string>()
                             {
-                                _ilrFirstStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
+                                //_ilrFirstStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
                                 _ilrFirstStageMessageTopics.TopicReports_TaskGenerateValidationReport
                             },
                             SupportsParallelExecution = false
@@ -154,7 +154,7 @@ namespace ESFA.DC.JobScheduler
                     {
                         Tasks = new List<string>()
                         {
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
+                            //_ilrSecondStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateValidationReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAllbOccupancyReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateFundingSummaryReport,
@@ -162,6 +162,7 @@ namespace ESFA.DC.JobScheduler
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMathsAndEnglishReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAppsIndicativeEarningsReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAppsAdditionalPaymentsReport,
+                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateTrailblazerEmployerIncentivesReport,
                         },
                         SupportsParallelExecution = false
                     }
