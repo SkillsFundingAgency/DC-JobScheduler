@@ -160,7 +160,7 @@ namespace ESFA.DC.JobScheduler
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateFundingSummaryReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMainOccupancyReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMathsAndEnglishReport,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAppsIndicativeEarningsReport,
+//                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAppsIndicativeEarningsReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAppsAdditionalPaymentsReport,
                             _ilrSecondStageMessageTopics.TopicReports_TaskGenerateTrailblazerEmployerIncentivesReport,
                         },
