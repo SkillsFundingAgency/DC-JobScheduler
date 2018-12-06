@@ -16,17 +16,13 @@ namespace ESFA.DC.JobScheduler
 {
     public sealed class EasMessageFactory : AbstractFileUploadMessageFactory
     {
-        private readonly EasMessageTopics _messageTopics;
-
         public EasMessageFactory(
-            EasMessageTopics messageTopics,
             ILogger logger,
             IFileUploadJobManager fileUploadMetaDataManager,
             [KeyFilter(JobType.EasSubmission)]ITopicConfiguration topicConfiguration,
             IJobTopicTaskService jobTopicTaskService)
             : base(logger, fileUploadMetaDataManager, topicConfiguration, jobTopicTaskService)
         {
-            _messageTopics = messageTopics;
         }
     }
 }
