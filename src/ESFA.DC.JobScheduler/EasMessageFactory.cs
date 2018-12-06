@@ -16,58 +16,13 @@ namespace ESFA.DC.JobScheduler
 {
     public sealed class EasMessageFactory : AbstractFileUploadMessageFactory
     {
-        private readonly EasMessageTopics _messageTopics;
-
         public EasMessageFactory(
-            EasMessageTopics messageTopics,
             ILogger logger,
             IFileUploadJobManager fileUploadMetaDataManager,
-            [KeyFilter(JobType.EasSubmission)]ITopicConfiguration topicConfiguration)
-            : base(logger, fileUploadMetaDataManager, topicConfiguration)
+            [KeyFilter(JobType.EasSubmission)]ITopicConfiguration topicConfiguration,
+            IJobTopicTaskService jobTopicTaskService)
+            : base(logger, fileUploadMetaDataManager, topicConfiguration, jobTopicTaskService)
         {
-            _messageTopics = messageTopics;
-        }
-
-        public override void AddExtraKeys(JobContextMessage message, FileUploadJob metaData)
-        {
-        }
-
-        public override List<TopicItem> CreateTopics(bool isFirstStage)
-        {
-            var topics = new List<TopicItem>();
-
-            var tasks = new List<ITaskItem>()
-            {
-                new TaskItem()
-                {
-                    Tasks = new List<string>()
-                    {
-                        _messageTopics.TopicProcessing_TaskValidation,
-                        _messageTopics.TopicProcessing_TaskStorage,
-                        _messageTopics.TopicProcessing_TaskReporting
-                    },
-                    SupportsParallelExecution = false
-                }
-            };
-
-            topics.Add(new TopicItem(_messageTopics.TopicProcessing, _messageTopics.TopicProcessing, tasks));
-
-            topics.Add(new TopicItem(
-                _messageTopics.TopicReports,
-                _messageTopics.TopicReports,
-                new List<ITaskItem>()
-                {
-                    new TaskItem()
-                    {
-                        Tasks = new List<string>()
-                        {
-                            _messageTopics.TopicReports_TaskGenerateAdultFundingClaimReport,
-                            _messageTopics.TopicReports_TaskGenerateFundingSummaryReport
-                        },
-                        SupportsParallelExecution = false
-                    }
-                }));
-            return topics;
         }
     }
 }

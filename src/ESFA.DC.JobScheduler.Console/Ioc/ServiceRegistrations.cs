@@ -66,6 +66,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.RegisterType<ExternalDataScheduleService>().As<IExternalDataScheduleService>().InstancePerLifetimeScope();
             builder.RegisterType<ScheduleService>().As<IScheduleService>().InstancePerLifetimeScope();
             builder.RegisterType<JobSchedulerStatusManager>().As<IJobSchedulerStatusManager>().InstancePerLifetimeScope();
+            builder.RegisterType<JobTopicTaskService>().As<IJobTopicTaskService>().InstancePerLifetimeScope();
 
             builder.Register(c => new QueuePublishService<AuditingDto>(
                     c.Resolve<AuditQueueConfiguration>(),

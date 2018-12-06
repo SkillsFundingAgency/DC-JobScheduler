@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Autofac.Features.AttributeFilters;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
@@ -14,21 +15,16 @@ namespace ESFA.DC.JobScheduler
 {
     public sealed class IlrMessageFactory : AbstractFileUploadMessageFactory
     {
-        private readonly IlrFirstStageMessageTopics _ilrFirstStageMessageTopics;
-        private readonly IlrSecondStageMessageTopics _ilrSecondStageMessageTopics;
         private readonly IKeyGenerator _keyGenerator;
 
         public IlrMessageFactory(
-            IlrFirstStageMessageTopics ilrFirstStageMessageTopics,
-            IlrSecondStageMessageTopics ilrSecondStageMessageTopics,
             IKeyGenerator keyGenerator,
             ILogger logger,
             IFileUploadJobManager fileUploadMetaDataManager,
-            [KeyFilter(JobType.IlrSubmission)]ITopicConfiguration topicConfiguration)
-            : base(logger, fileUploadMetaDataManager, topicConfiguration)
+            [KeyFilter(JobType.IlrSubmission)]ITopicConfiguration topicConfiguration,
+            IJobTopicTaskService jobTopicTaskService)
+            : base(logger, fileUploadMetaDataManager, topicConfiguration, jobTopicTaskService)
         {
-            _ilrFirstStageMessageTopics = ilrFirstStageMessageTopics;
-            _ilrSecondStageMessageTopics = ilrSecondStageMessageTopics;
             _keyGenerator = keyGenerator;
         }
 
@@ -64,112 +60,6 @@ namespace ESFA.DC.JobScheduler
             message.KeyValuePairs.Add("OriginalFilename", metaData.FileName);
             message.KeyValuePairs.Add("ReturnPeriod", metaData.PeriodNumber);
             message.KeyValuePairs.Add("CollectionYear", metaData.CollectionYear);
-        }
-
-        public override List<TopicItem> CreateTopics(bool isFirstStage)
-        {
-            var topics = new List<TopicItem>();
-
-            var tasks = new List<ITaskItem>()
-            {
-                new TaskItem()
-                {
-                    Tasks = new List<string>() { string.Empty },
-                    SupportsParallelExecution = false
-                }
-            };
-
-            if (isFirstStage)
-            {
-                topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicFileValidation, _ilrFirstStageMessageTopics.TopicFileValidation, new List<ITaskItem>()));
-                topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicValidation, _ilrFirstStageMessageTopics.TopicValidation, tasks));
-                //topics.Add(new TopicItem(_ilrFirstStageMessageTopics.TopicFunding, _ilrFirstStageMessageTopics.TopicFunding, new List<ITaskItem>()
-                //{
-                //    new TaskItem()
-                //    {
-                //        Tasks = new List<string>()
-                //        {
-                //            _ilrFirstStageMessageTopics.TopicFunding_TaskPerformFM36Calculation,
-                //        },
-                //        SupportsParallelExecution = false
-                //    }
-                //}));
-
-                topics.Add(new TopicItem(
-                    _ilrFirstStageMessageTopics.TopicReports,
-                    _ilrFirstStageMessageTopics.TopicReports,
-                    new List<ITaskItem>()
-                    {
-                        new TaskItem()
-                        {
-                            Tasks = new List<string>()
-                            {
-                                //_ilrFirstStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
-                                _ilrFirstStageMessageTopics.TopicReports_TaskGenerateValidationReport
-                            },
-                            SupportsParallelExecution = false
-                        }
-                    }));
-            }
-            else
-            {
-                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicFileValidation, _ilrSecondStageMessageTopics.TopicFileValidation, new List<ITaskItem>()));
-                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicValidation, _ilrSecondStageMessageTopics.TopicValidation, tasks));
-
-                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicFunding, _ilrSecondStageMessageTopics.TopicFunding, new List<ITaskItem>()
-                {
-                    new TaskItem()
-                    {
-                        Tasks = new List<string>()
-                        {
-                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformALBCalculation,
-                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM25Calculation,
-                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM35Calculation,
-                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM36Calculation,
-                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM70Calculation,
-                            _ilrSecondStageMessageTopics.TopicFunding_TaskPerformFM81Calculation
-                        },
-                        SupportsParallelExecution = false
-                    }
-                }));
-
-                topics.Add(new TopicItem(
-                    _ilrSecondStageMessageTopics.TopicDeds,
-                    _ilrSecondStageMessageTopics.TopicDeds,
-                    new List<ITaskItem>()
-                    {
-                        new TaskItem()
-                        {
-                            Tasks = new List<string>()
-                            {
-                                _ilrSecondStageMessageTopics.TopicDeds_TaskPersistDataToDeds
-                            },
-                            SupportsParallelExecution = false
-                        }
-                    }));
-
-                topics.Add(new TopicItem(_ilrSecondStageMessageTopics.TopicReports, _ilrSecondStageMessageTopics.TopicReports, new List<ITaskItem>()
-                {
-                    new TaskItem()
-                    {
-                        Tasks = new List<string>()
-                        {
-                            //_ilrSecondStageMessageTopics.TopicReports_TaskGenerateDataMatchReport,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateValidationReport,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAllbOccupancyReport,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateFundingSummaryReport,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMainOccupancyReport,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateMathsAndEnglishReport,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAppsIndicativeEarningsReport,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateAppsAdditionalPaymentsReport,
-                            _ilrSecondStageMessageTopics.TopicReports_TaskGenerateTrailblazerEmployerIncentivesReport,
-                        },
-                        SupportsParallelExecution = false
-                    }
-                }));
-            }
-
-            return topics;
         }
     }
 }
