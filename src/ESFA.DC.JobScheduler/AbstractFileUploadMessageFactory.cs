@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Autofac.Features.AttributeFilters;
 using ESFA.DC.JobContext;
@@ -21,22 +22,25 @@ namespace ESFA.DC.JobScheduler
         private readonly ILogger _logger;
         private readonly IFileUploadJobManager _fileUploadJobManager;
         private readonly ITopicConfiguration _topicConfiguration;
+        private readonly IJobTopicTaskService _jobTopicTaskService;
 
         protected AbstractFileUploadMessageFactory(
             ILogger logger,
             IFileUploadJobManager fileUploadMetaDataManager,
-            ITopicConfiguration topicConfiguration)
+            ITopicConfiguration topicConfiguration,
+            IJobTopicTaskService jobTopicTaskService)
         {
             _logger = logger;
             _fileUploadJobManager = fileUploadMetaDataManager;
             _topicConfiguration = topicConfiguration;
+            _jobTopicTaskService = jobTopicTaskService;
         }
 
         public MessageParameters CreateMessageParameters(long jobId)
         {
             var job = _fileUploadJobManager.GetJobById(jobId);
 
-            var topics = CreateTopics(job.IsFirstStage);
+            var topics = CreateTopics(job.JobType, job.IsFirstStage);
 
             var contextMessage = new JobContextMessage(
                 job.JobId,
@@ -67,8 +71,14 @@ namespace ESFA.DC.JobScheduler
             return message;
         }
 
-        public abstract void AddExtraKeys(JobContextMessage message, FileUploadJob metaData);
+        public virtual void AddExtraKeys(JobContextMessage message, FileUploadJob metaData)
+        {
+        }
 
-        public abstract List<TopicItem> CreateTopics(bool isFirstStage);
+        public List<ITopicItem> CreateTopics(JobType jobType, bool isFirstStage)
+        {
+            var topics = _jobTopicTaskService.GetTopicItems(jobType, isFirstStage);
+            return topics.ToList();
+        }
     }
 }

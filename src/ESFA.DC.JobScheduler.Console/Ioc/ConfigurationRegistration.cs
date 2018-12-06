@@ -26,13 +26,6 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.Register(c => configuration.GetConfigSection<AuditQueueConfiguration>())
                 .As<AuditQueueConfiguration>().SingleInstance();
 
-            builder.Register(c => configuration.GetConfigSection<IlrFirstStageMessageTopics>())
-                .As<IlrFirstStageMessageTopics>().SingleInstance();
-
-            builder.Register(c => configuration.GetConfigSection<IlrSecondStageMessageTopics>())
-                .As<IlrSecondStageMessageTopics>().SingleInstance();
-            builder.Register(c => configuration.GetConfigSection<EsfMessageTopics>())
-                .As<EsfMessageTopics>().SingleInstance();
             builder.Register(c => configuration.GetConfigSection<EasMessageTopics>())
                 .As<EasMessageTopics>().SingleInstance();
 
