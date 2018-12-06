@@ -16,42 +16,13 @@ namespace ESFA.DC.JobScheduler
 {
     public sealed class EsfMessageFactory : AbstractFileUploadMessageFactory
     {
-        private readonly EsfMessageTopics _esfMessageTopics;
-
         public EsfMessageFactory(
-            EsfMessageTopics esfMessageTopics,
             ILogger logger,
             IFileUploadJobManager fileUploadMetaDataManager,
-            [KeyFilter(JobType.EsfSubmission)]ITopicConfiguration topicConfiguration)
-            : base(logger, fileUploadMetaDataManager, topicConfiguration)
+            [KeyFilter(JobType.EsfSubmission)]ITopicConfiguration topicConfiguration,
+            IJobTopicTaskService jobTopicTaskService)
+            : base(logger, fileUploadMetaDataManager, topicConfiguration, jobTopicTaskService)
         {
-            _esfMessageTopics = esfMessageTopics;
-        }
-
-        public override void AddExtraKeys(JobContextMessage message, FileUploadJob metaData)
-        {
-        }
-
-        public override List<TopicItem> CreateTopics(bool isFirstStage)
-        {
-            var topics = new List<TopicItem>();
-
-            var tasks = new List<ITaskItem>()
-            {
-                new TaskItem()
-                {
-                    Tasks = new List<string>()
-                    {
-                        _esfMessageTopics.TopicProcessing_TaskValidation,
-                        _esfMessageTopics.TopicProcessing_TaskStorage,
-                        _esfMessageTopics.TopicProcessing_TaskReporting
-                    },
-                    SupportsParallelExecution = false
-                }
-            };
-
-            topics.Add(new TopicItem(_esfMessageTopics.TopicProcessing, _esfMessageTopics.TopicProcessing, tasks));
-            return topics;
         }
     }
 }

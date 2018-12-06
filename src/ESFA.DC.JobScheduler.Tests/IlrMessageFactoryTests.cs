@@ -38,7 +38,6 @@ namespace ESFA.DC.JobScheduler.Tests
             result.Should().NotBeNull();
             result.JobType.Should().Be(JobType.IlrSubmission);
             result.JobContextMessage.JobId.Should().Be(10);
-            result.JobContextMessage.Topics.Count.Should().Be(5);
             result.SubscriptionLabel.Should().Be("Validation");
             result.TopicParameters.ContainsKey("To").Should().Be(true);
         }
@@ -91,39 +90,6 @@ namespace ESFA.DC.JobScheduler.Tests
             message.KeyValuePairs.ContainsKey(JobContextMessageKey.FundingFm25Output).Should().BeTrue();
         }
 
-        [Fact]
-        public void CreateIlrTopicsList_Test_FirstStage()
-        {
-            var factory = GetFactory();
-
-            var result = factory.CreateTopics(true);
-            result.Should().BeAssignableTo<IEnumerable<TopicItem>>();
-            result.Count.Should().Be(3);
-            result.Any(x => x.SubscriptionName == "Val" && x.Tasks != null).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "reports" && x.Tasks != null).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("task_validationreports")))).Should().BeTrue();
-        }
-
-        [Fact]
-        public void CreateIlrTopicsList_Test_SecondStage()
-        {
-            var factory = GetFactory(false);
-
-            var result = factory.CreateTopics(false);
-            result.Should().BeAssignableTo<IEnumerable<TopicItem>>();
-            result.Count.Should().Be(5);
-            result.Any(x => x.SubscriptionName == "Val" && x.Tasks != null).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "reports" && x.Tasks != null).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "deds" && x.Tasks != null).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "deds" && x.Tasks.Any(y => y.Tasks.Any(z => z.Contains("task_persist")))).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "funding" && x.Tasks != null).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "reports" && x.Tasks != null).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z != null && z.Contains("val_report")))).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z != null && z.Contains("mo_report")))).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z != null && z.Contains("alb_report")))).Should().BeTrue();
-            result.Any(x => x.SubscriptionName == "reports" && x.Tasks.Any(y => y.Tasks.Any(z => z != null && z.Contains("fs_report")))).Should().BeTrue();
-        }
-
         private IlrMessageFactory GetFactory(bool isFirstStage = true, FileUploadJob job = null)
         {
             var mockIFileUploadJobManager = new Mock<IFileUploadJobManager>();
@@ -135,39 +101,15 @@ namespace ESFA.DC.JobScheduler.Tests
                     Ukprn = 1000
                 });
 
-            var firstStageTopics = new IlrFirstStageMessageTopics()
-            {
-                TopicValidation = "Val",
-                TopicReports = "reports",
-                TopicReports_TaskGenerateValidationReport = "task_validationreports",
-                TopicFunding = "funding",
-                TopicFunding_TaskPerformFM36Calculation = "fm36",
-                TopicReports_TaskGenerateDataMatchReport = "task_datamatchreports"
-            };
-
-            var secondStageTopics = new IlrSecondStageMessageTopics()
-            {
-                TopicValidation = "Val",
-                TopicFunding = "funding",
-                TopicDeds_TaskPersistDataToDeds = "task_persist",
-                TopicDeds = "deds",
-                TopicReports = "reports",
-                TopicReports_TaskGenerateValidationReport = "val_report",
-                TopicReports_TaskGenerateMainOccupancyReport = "mo_report",
-                TopicReports_TaskGenerateAllbOccupancyReport = "alb_report",
-                TopicReports_TaskGenerateFundingSummaryReport = "fs_report"
-            };
-
             var mockTopicConfiguration = new Mock<ITopicConfiguration>();
             mockTopicConfiguration.SetupGet(x => x.SubscriptionName).Returns("Validation");
 
             var factory = new IlrMessageFactory(
-                firstStageTopics,
-                secondStageTopics,
                 new Mock<IKeyGenerator>().Object,
                 new Mock<ILogger>().Object,
                 mockIFileUploadJobManager.Object,
-                mockTopicConfiguration.Object);
+                mockTopicConfiguration.Object,
+                new Mock<IJobTopicTaskService>().Object);
 
             return factory;
         }
