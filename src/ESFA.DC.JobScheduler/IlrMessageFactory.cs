@@ -58,7 +58,6 @@ namespace ESFA.DC.JobScheduler
             message.KeyValuePairs.Add("FundingFm70Output", _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, "FundingFm70Output"));
             message.KeyValuePairs.Add("FundingFm81Output", _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, "FundingFm81Output"));
             message.KeyValuePairs.Add("OriginalFilename", metaData.FileName);
-            message.KeyValuePairs.Add("ReturnPeriod", metaData.PeriodNumber);
             message.KeyValuePairs.Add("CollectionYear", metaData.CollectionYear);
         }
     }
