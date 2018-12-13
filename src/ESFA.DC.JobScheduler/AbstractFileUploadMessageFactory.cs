@@ -52,6 +52,9 @@ namespace ESFA.DC.JobScheduler
                 0,
                 job.DateTimeSubmittedUtc);
 
+            contextMessage.KeyValuePairs.Add("CollectionName", job.CollectionName);
+            contextMessage.KeyValuePairs.Add("ReturnPeriod", job.PeriodNumber);
+
             AddExtraKeys(contextMessage, job);
 
             var message = new MessageParameters(job.JobType)
