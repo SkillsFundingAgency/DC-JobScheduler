@@ -5,15 +5,12 @@ using System.Threading.Tasks;
 using Autofac.Features.Indexed;
 using ESFA.DC.Auditing.Interface;
 using ESFA.DC.DateTimeProvider.Interface;
-using ESFA.DC.JobContext;
-using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.JobQueueManager.Interfaces.ExternalData;
 using ESFA.DC.Jobs.Model;
 using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobSchduler.CrossLoading;
 using ESFA.DC.JobScheduler.Interfaces;
-using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.JobStatus.Interface;
 using ESFA.DC.Logging.Interfaces;
 
@@ -55,29 +52,34 @@ namespace ESFA.DC.JobScheduler
 
         public async Task ProcessNextJobAsync(CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             while (true)
             {
                 try
                 {
                     if (await _jobSchedulerStatusManager.IsJobQueueProcessingEnabledAsync())
                     {
-                        //IEnumerable<JobType> messageTasks = await _externalDataScheduleService.GetJobs(true, cancellationToken);
-                        //Job refDataJob = new Job()
-                        //{
-                        //    DateTimeSubmittedUtc = _dateTimeProvider.GetNowUtc(),s
-                        //    JobType = messageTasks.,
-                        //    Priority = 1,
-                        //    Status = JobStatusType.Ready,
-                        //    SubmittedBy = "System"
-                        //};
+                        IEnumerable<JobType> jobTypes = await _externalDataScheduleService.GetJobs(true, cancellationToken);
+                        foreach (JobType jobType in jobTypes)
+                        {
+                            Job refDataJob = new Job
+                            {
+                                DateTimeSubmittedUtc = _dateTimeProvider.GetNowUtc(),
+                                JobType = jobType,
+                                Priority = 1,
+                                Status = JobStatusType.Ready,
+                                SubmittedBy = "System"
+                            };
 
-                        //long id = _jobQueueManager.AddJob(refDataJob);
+                            long id = _jobQueueManager.AddJob(refDataJob);
+                        }
 
                         IEnumerable<Job> jobs = await _jobQueueManager.GetJobsByPriorityAsync(25);
 
                         foreach (Job job in jobs)
                         {
-                            _logger.LogInfo($"Got job id : {job.JobId}");
+                            _logger.LogInfo($"Got job id: {job.JobId}");
                             await MoveJobForProcessing(job);
                             await MoveJobForCrossLoading(job);
                         }
@@ -88,18 +90,19 @@ namespace ESFA.DC.JobScheduler
                     _logger.LogError("Error occured in job scheduler - will continue to pick new jobs", ex);
                 }
 
+                cancellationToken.ThrowIfCancellationRequested();
                 Thread.Sleep(1000);
             }
         }
 
-        public async Task MoveJobForProcessing(Jobs.Model.Job job)
+        public async Task MoveJobForProcessing(Job job)
         {
             if (job == null)
             {
                 return;
             }
 
-            _logger.LogInfo($"Job id : {job.JobId} recieved for moving to queue");
+            _logger.LogInfo($"Job id : {job.JobId} received for moving to queue");
 
             var message = _jobContextMessageFactories[job.JobType].CreateMessageParameters(job.JobId);
 
@@ -145,7 +148,7 @@ namespace ESFA.DC.JobScheduler
             }
         }
 
-        public async Task MoveJobForCrossLoading(Jobs.Model.Job job)
+        public async Task MoveJobForCrossLoading(Job job)
         {
             if (job.CrossLoadingStatus.HasValue)
             {

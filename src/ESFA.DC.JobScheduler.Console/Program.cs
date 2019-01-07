@@ -1,17 +1,19 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Autofac;
 using ESFA.DC.JobScheduler.Console.Ioc;
 using ESFA.DC.JobScheduler.Interfaces;
-using ESFA.DC.Queueing.Interface.Configuration;
 using Microsoft.Extensions.Configuration;
 
 namespace ESFA.DC.JobScheduler.Console
 {
-    internal class Program
+    public static class Program
     {
-        private static void Main(string[] args)
+        public static CancellationToken CancellationToken = CancellationToken.None;
+
+        public static async Task Main(string[] args)
         {
             var containerBuilder = new ContainerBuilder();
 
@@ -39,12 +41,9 @@ namespace ESFA.DC.JobScheduler.Console
 
             using (var scope = container.BeginLifetimeScope())
             {
-                var schedular = scope.Resolve<IJobQueueHandler>();
-                schedular.ProcessNextJobAsync(CancellationToken.None).GetAwaiter().GetResult();
-                System.Console.ReadLine();
+                var scheduler = scope.Resolve<IJobQueueHandler>();
+                await scheduler.ProcessNextJobAsync(CancellationToken);
             }
-
-            //System.Console.ReadLine();
         }
     }
 }

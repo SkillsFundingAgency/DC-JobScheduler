@@ -15,7 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="ESFA.DC.CrossLoad" Version="0.1.4-beta0001" />
-    <PackageReference Include="ESFA.DC.JobQueueManager" Version="0.1.59-beta0001" />
+    <PackageReference Include="ESFA.DC.JobQueueManager" Version="0.1.67-beta0001" />
     <PackageReference Include="ESFA.DC.Queueing.Interface" Version="0.1.14-beta0001" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
       <PrivateAssets>all</PrivateAssets>
