@@ -1,13 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Autofac.Features.AttributeFilters;
-using ESFA.DC.JobContext;
+﻿using Autofac.Features.AttributeFilters;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model;
 using ESFA.DC.Jobs.Model.Enums;
-using ESFA.DC.JobScheduler.Settings;
-using ESFA.DC.KeyGenerator.Interface;
 using ESFA.DC.Logging.Interfaces;
 using ESFA.DC.Queueing.Interface.Configuration;
 
@@ -15,26 +10,17 @@ namespace ESFA.DC.JobScheduler
 {
     public sealed class IlrMessageFactory : AbstractFileUploadMessageFactory
     {
-        private readonly IKeyGenerator _keyGenerator;
-
         public IlrMessageFactory(
-            IKeyGenerator keyGenerator,
             ILogger logger,
             IFileUploadJobManager fileUploadMetaDataManager,
             [KeyFilter(JobType.IlrSubmission)]ITopicConfiguration topicConfiguration,
             IJobTopicTaskService jobTopicTaskService)
             : base(logger, fileUploadMetaDataManager, topicConfiguration, jobTopicTaskService)
         {
-            _keyGenerator = keyGenerator;
         }
 
-        public override void AddExtraKeys(JobContextMessage message, FileUploadJob metaData)
+        public override void AddExtraKeys(IJobContextMessage message, FileUploadJob metaData)
         {
-            if (message.KeyValuePairs == null)
-            {
-                message.KeyValuePairs = new Dictionary<string, object>();
-            }
-
             message.KeyValuePairs.Add(JobContextMessageKey.FileSizeInBytes, metaData.FileSize);
 
             if (metaData.IsFirstStage)
@@ -47,16 +33,16 @@ namespace ESFA.DC.JobScheduler
                 return;
             }
 
-            message.KeyValuePairs.Add(JobContextMessageKey.InvalidLearnRefNumbers, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.ValidationInvalidLearners));
-            message.KeyValuePairs.Add(JobContextMessageKey.ValidLearnRefNumbers, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.ValidationValidLearners));
-            message.KeyValuePairs.Add(JobContextMessageKey.ValidationErrors, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.ValidationErrors));
-            message.KeyValuePairs.Add(JobContextMessageKey.ValidationErrorLookups, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.ValidationErrorsLookup));
-            message.KeyValuePairs.Add(JobContextMessageKey.FundingAlbOutput, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.FundingAlbOutput));
-            message.KeyValuePairs.Add(JobContextMessageKey.FundingFm35Output, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.FundingFm35Output));
-            message.KeyValuePairs.Add(JobContextMessageKey.FundingFm25Output, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, TaskKeys.FundingFm25Output));
-            message.KeyValuePairs.Add(JobContextMessageKey.FundingFm36Output, _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, JobContextMessageKey.FundingFm36Output));
-            message.KeyValuePairs.Add("FundingFm70Output", _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, "FundingFm70Output"));
-            message.KeyValuePairs.Add("FundingFm81Output", _keyGenerator.GenerateKey(metaData.Ukprn, metaData.JobId, "FundingFm81Output"));
+            message.KeyValuePairs.Add(JobContextMessageKey.InvalidLearnRefNumbers, GenerateKey(metaData.Ukprn, metaData.JobId, "ValidationInvalidLearners", "json"));
+            message.KeyValuePairs.Add(JobContextMessageKey.ValidLearnRefNumbers, GenerateKey(metaData.Ukprn, metaData.JobId, "ValidationValidLearners", "json"));
+            message.KeyValuePairs.Add(JobContextMessageKey.ValidationErrors, GenerateKey(metaData.Ukprn, metaData.JobId, "ValidationErrors", "json"));
+            message.KeyValuePairs.Add(JobContextMessageKey.ValidationErrorLookups, GenerateKey(metaData.Ukprn, metaData.JobId, "ValidationErrorsLookup", "json"));
+            message.KeyValuePairs.Add(JobContextMessageKey.FundingAlbOutput, GenerateKey(metaData.Ukprn, metaData.JobId, "FundingAlbOutput", "json"));
+            message.KeyValuePairs.Add(JobContextMessageKey.FundingFm35Output, GenerateKey(metaData.Ukprn, metaData.JobId, "FundingFm35Output", "json"));
+            message.KeyValuePairs.Add(JobContextMessageKey.FundingFm25Output, GenerateKey(metaData.Ukprn, metaData.JobId, "FundingFm25Output", "json"));
+            message.KeyValuePairs.Add(JobContextMessageKey.FundingFm36Output, GenerateKey(metaData.Ukprn, metaData.JobId, JobContextMessageKey.FundingFm36Output, "json"));
+            message.KeyValuePairs.Add("FundingFm70Output", GenerateKey(metaData.Ukprn, metaData.JobId, "FundingFm70Output", "json"));
+            message.KeyValuePairs.Add("FundingFm81Output", GenerateKey(metaData.Ukprn, metaData.JobId, "FundingFm81Output", "json"));
             message.KeyValuePairs.Add("OriginalFilename", metaData.FileName);
             message.KeyValuePairs.Add("CollectionYear", metaData.CollectionYear);
         }

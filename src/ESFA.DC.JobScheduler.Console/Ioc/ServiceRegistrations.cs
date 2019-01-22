@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Transactions;
 using Autofac;
 using Autofac.Features.AttributeFilters;
 using ESFA.DC.Auditing;
@@ -9,9 +8,7 @@ using ESFA.DC.Auditing.Interface;
 using ESFA.DC.CrossLoad;
 using ESFA.DC.CrossLoad.Dto;
 using ESFA.DC.DateTimeProvider.Interface;
-using ESFA.DC.IO.Interfaces;
 using ESFA.DC.JobContext;
-using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobNotifications;
 using ESFA.DC.JobNotifications.Interfaces;
 using ESFA.DC.JobQueueManager;
@@ -23,17 +20,13 @@ using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobSchduler.CrossLoading;
 using ESFA.DC.JobScheduler.Interfaces;
 using ESFA.DC.JobScheduler.Settings;
-using ESFA.DC.KeyGenerator.Interface;
 using ESFA.DC.Logging.Interfaces;
 using ESFA.DC.Queueing;
 using ESFA.DC.Queueing.Interface;
 using ESFA.DC.Queueing.Interface.Configuration;
 using ESFA.DC.Serialization.Interfaces;
 using ESFA.DC.Serialization.Json;
-using Microsoft.Azure.ServiceBus;
 using Microsoft.EntityFrameworkCore;
-using Polly;
-using Polly.Registry;
 
 namespace ESFA.DC.JobScheduler.Console.Ioc
 {
@@ -51,7 +44,6 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
 
             builder.RegisterType<JsonSerializationService>().As<IJsonSerializationService>().InstancePerLifetimeScope();
             builder.RegisterType<DateTimeProvider.DateTimeProvider>().As<IDateTimeProvider>().SingleInstance();
-            builder.RegisterType<KeyGenerator.KeyGenerator>().As<IKeyGenerator>().SingleInstance();
             builder.RegisterType<EmailNotifier>().As<IEmailNotifier>().InstancePerLifetimeScope();
             builder.RegisterType<EmailTemplateManager>().As<IEmailTemplateManager>().InstancePerLifetimeScope();
             builder.RegisterType<QueuePublishService<MessageCrossLoadDctToDcftDto>>().As<IQueuePublishService<MessageCrossLoadDctToDcftDto>>().InstancePerLifetimeScope();

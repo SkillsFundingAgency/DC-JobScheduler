@@ -22,6 +22,10 @@ namespace ESFA.DC.JobScheduler.Console.Tests
                 cts.Cancel();
                 await Program.Main(null);
             }
+            catch (OperationCanceledException oce)
+            {
+                Assert.True(true);
+            }
             catch (Exception ex)
             {
                 Assert.Null(ex);

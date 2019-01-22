@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Autofac.Features.AttributeFilters;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
@@ -10,8 +7,6 @@ using ESFA.DC.Jobs.Model;
 using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobScheduler.Interfaces;
 using ESFA.DC.JobScheduler.Interfaces.Models;
-using ESFA.DC.JobScheduler.Settings;
-using ESFA.DC.KeyGenerator.Interface;
 using ESFA.DC.Logging.Interfaces;
 using ESFA.DC.Queueing.Interface.Configuration;
 
@@ -72,11 +67,25 @@ namespace ESFA.DC.JobScheduler
             return message;
         }
 
-        public virtual void AddExtraKeys(JobContextMessage message, FileUploadJob metaData)
+        public abstract void AddExtraKeys(IJobContextMessage message, FileUploadJob metaData);
+
+        protected string GenerateKey(long ukprn, long jobId, string value, string extension = null)
         {
+            string key = $"{ukprn}/{jobId}/{value}";
+            if (!string.IsNullOrEmpty(extension))
+            {
+                if (!extension.StartsWith("."))
+                {
+                    key += ".";
+                }
+
+                key += extension;
+            }
+
+            return key;
         }
 
-        public List<ITopicItem> CreateTopics(JobType jobType, bool isFirstStage)
+        private List<ITopicItem> CreateTopics(JobType jobType, bool isFirstStage)
         {
             var topics = _jobTopicTaskService.GetTopicItems(jobType, isFirstStage);
             return topics.ToList();

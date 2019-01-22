@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model;
 using ESFA.DC.Jobs.Model.Enums;
-using ESFA.DC.JobScheduler.Settings;
-using ESFA.DC.KeyGenerator.Interface;
+using ESFA.DC.JobScheduler.Interfaces.Models;
 using ESFA.DC.Logging.Interfaces;
 using ESFA.DC.Queueing.Interface.Configuration;
 using FluentAssertions;
@@ -40,6 +36,24 @@ namespace ESFA.DC.JobScheduler.Tests
             result.JobContextMessage.JobId.Should().Be(10);
             result.SubscriptionLabel.Should().Be("Validation");
             result.TopicParameters.ContainsKey("To").Should().Be(true);
+        }
+
+        [Fact]
+        public void GenerateKeys()
+        {
+            var job = new FileUploadJob()
+            {
+                JobType = JobType.IlrSubmission,
+                JobId = 10,
+                Ukprn = 123456
+            };
+
+            IlrMessageFactory factory = GetFactory(false, job);
+
+            MessageParameters result = factory.CreateMessageParameters(It.IsAny<long>());
+
+            result.JobContextMessage.KeyValuePairs[JobContextMessageKey.InvalidLearnRefNumbers].Should()
+                .Be($"{job.Ukprn}/{job.JobId}/ValidationInvalidLearners.json");
         }
 
         [Theory]
@@ -105,7 +119,6 @@ namespace ESFA.DC.JobScheduler.Tests
             mockTopicConfiguration.SetupGet(x => x.SubscriptionName).Returns("Validation");
 
             var factory = new IlrMessageFactory(
-                new Mock<IKeyGenerator>().Object,
                 new Mock<ILogger>().Object,
                 mockIFileUploadJobManager.Object,
                 mockTopicConfiguration.Object,

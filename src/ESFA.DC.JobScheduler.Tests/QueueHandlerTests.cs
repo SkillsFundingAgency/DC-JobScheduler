@@ -13,12 +13,8 @@ using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobSchduler.CrossLoading;
 using ESFA.DC.JobScheduler.Interfaces;
 using ESFA.DC.JobScheduler.Interfaces.Models;
-using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.JobStatus.Interface;
-using ESFA.DC.KeyGenerator.Interface;
 using ESFA.DC.Logging.Interfaces;
-using ESFA.DC.Queueing.Interface;
-using ESFA.DC.Queueing.Interface.Configuration;
 using Moq;
 using Xunit;
 
