@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
+﻿using System.Threading.Tasks;
 using Autofac.Features.Indexed;
 using ESFA.DC.JobContext;
 using ESFA.DC.Jobs.Model.Enums;
@@ -10,9 +6,6 @@ using ESFA.DC.JobScheduler.Interfaces;
 using ESFA.DC.JobScheduler.Interfaces.Models;
 using ESFA.DC.Logging.Interfaces;
 using ESFA.DC.Queueing.Interface;
-using Microsoft.Azure.ServiceBus;
-using Polly;
-using Polly.Registry;
 
 namespace ESFA.DC.JobScheduler
 {

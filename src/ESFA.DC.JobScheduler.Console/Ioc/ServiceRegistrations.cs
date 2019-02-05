@@ -53,6 +53,8 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
             builder.RegisterType<IlrMessageFactory>().Keyed<IMessageFactory>(JobType.IlrSubmission).WithAttributeFiltering().SingleInstance();
             builder.RegisterType<EsfMessageFactory>().Keyed<IMessageFactory>(JobType.EsfSubmission).WithAttributeFiltering().SingleInstance();
             builder.RegisterType<EasMessageFactory>().Keyed<IMessageFactory>(JobType.EasSubmission).WithAttributeFiltering().SingleInstance();
+            builder.RegisterType<PeriodEndMessageFactory>().Keyed<IMessageFactory>(JobType.PeriodEnd).WithAttributeFiltering().SingleInstance();
+            builder.RegisterType<ReferenceDataMessageFactory>().Keyed<IMessageFactory>(JobType.ReferenceDataFCS).Keyed<IMessageFactory>(JobType.ReferenceDataEPA).WithAttributeFiltering().SingleInstance();
 
             builder.RegisterType<ReturnCalendarService>().As<IReturnCalendarService>().InstancePerLifetimeScope();
             builder.RegisterType<ExternalDataScheduleService>().As<IExternalDataScheduleService>().InstancePerLifetimeScope();
@@ -72,6 +74,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
                 .As<IQueuePublishService<AuditingDto>>();
             builder.RegisterType<Auditor>().As<IAuditor>().InstancePerLifetimeScope();
 
+            builder.RegisterType<JobQueueDataContext>().As<IJobQueueDataContext>().InstancePerLifetimeScope();
             builder.Register(context =>
                 {
                     var queueManagerSettings = context.Resolve<JobQueueManagerSettings>();
@@ -108,6 +111,24 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
                 var config = context.ResolveKeyed<ITopicConfiguration>(JobType.EasSubmission);
                 return new TopicPublishService<JobContextDto>(config, context.Resolve<IJsonSerializationService>());
             }).Keyed<ITopicPublishService<JobContextDto>>(JobType.EasSubmission).InstancePerLifetimeScope();
+
+            builder.Register(context =>
+            {
+                var config = context.ResolveKeyed<ITopicConfiguration>(JobType.PeriodEnd);
+                return new TopicPublishService<JobContextDto>(config, context.Resolve<IJsonSerializationService>());
+            }).Keyed<ITopicPublishService<JobContextDto>>(JobType.PeriodEnd).InstancePerLifetimeScope();
+
+            builder.Register(context =>
+            {
+                var config = context.ResolveKeyed<ITopicConfiguration>(JobType.ReferenceDataFCS);
+                return new TopicPublishService<JobContextDto>(config, context.Resolve<IJsonSerializationService>());
+            }).Keyed<ITopicPublishService<JobContextDto>>(JobType.ReferenceDataFCS).InstancePerLifetimeScope();
+
+            builder.Register(context =>
+            {
+                var config = context.ResolveKeyed<ITopicConfiguration>(JobType.ReferenceDataEPA);
+                return new TopicPublishService<JobContextDto>(config, context.Resolve<IJsonSerializationService>());
+            }).Keyed<ITopicPublishService<JobContextDto>>(JobType.ReferenceDataEPA).InstancePerLifetimeScope();
         }
     }
 }

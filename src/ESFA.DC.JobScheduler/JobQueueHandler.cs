@@ -60,29 +60,9 @@ namespace ESFA.DC.JobScheduler
                 {
                     if (await _jobSchedulerStatusManager.IsJobQueueProcessingEnabledAsync())
                     {
-                        IEnumerable<JobType> jobTypes = await _externalDataScheduleService.GetJobs(true, cancellationToken);
-                        foreach (JobType jobType in jobTypes)
-                        {
-                            Job refDataJob = new Job
-                            {
-                                DateTimeSubmittedUtc = _dateTimeProvider.GetNowUtc(),
-                                JobType = jobType,
-                                Priority = 1,
-                                Status = JobStatusType.Ready,
-                                SubmittedBy = "System"
-                            };
+                        await QueueAnyNewReferenceDataJobs(cancellationToken);
 
-                            long id = _jobQueueManager.AddJob(refDataJob);
-                        }
-
-                        IEnumerable<Job> jobs = await _jobQueueManager.GetJobsByPriorityAsync(25);
-
-                        foreach (Job job in jobs)
-                        {
-                            _logger.LogInfo($"Got job id: {job.JobId}");
-                            await MoveJobForProcessing(job);
-                            await MoveJobForCrossLoading(job);
-                        }
+                        await ProcessAnyNewJobs();
                     }
                 }
                 catch (Exception ex)
@@ -102,7 +82,7 @@ namespace ESFA.DC.JobScheduler
                 return;
             }
 
-            _logger.LogInfo($"Job id : {job.JobId} received for moving to queue");
+            _logger.LogInfo($"Job id: {job.JobId} received for moving to queue");
 
             var message = _jobContextMessageFactories[job.JobType].CreateMessageParameters(job.JobId);
 
@@ -110,7 +90,7 @@ namespace ESFA.DC.JobScheduler
             {
                 var jobStatusUpdated = _jobQueueManager.UpdateJobStatus(job.JobId, JobStatusType.MovedForProcessing);
 
-                _logger.LogInfo($"Job id : {job.JobId} status updated successfully");
+                _logger.LogInfo($"Job id: {job.JobId} status updated successfully");
 
                 if (jobStatusUpdated)
                 {
@@ -121,7 +101,7 @@ namespace ESFA.DC.JobScheduler
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"Job id : {job.JobId} sending to service bus failed", ex);
+                        _logger.LogError($"Job id: {job.JobId} sending to service bus failed", ex);
                         await _auditor.AuditAsync(
                             message.JobContextMessage,
                             AuditEventType.ServiceFailed,
@@ -140,7 +120,7 @@ namespace ESFA.DC.JobScheduler
             }
             catch (Exception exception)
             {
-                _logger.LogError($"Job id : {job.JobId}", exception);
+                _logger.LogError($"Job id: {job.JobId}", exception);
                 await _auditor.AuditAsync(
                     message.JobContextMessage,
                     AuditEventType.ServiceFailed,
@@ -148,14 +128,44 @@ namespace ESFA.DC.JobScheduler
             }
         }
 
-        public async Task MoveJobForCrossLoading(Job job)
+        private async Task QueueAnyNewReferenceDataJobs(CancellationToken cancellationToken)
+        {
+            IEnumerable<JobType> jobTypes = await _externalDataScheduleService.GetJobs(true, cancellationToken);
+            foreach (JobType jobType in jobTypes)
+            {
+                Job refDataJob = new Job
+                {
+                    DateTimeSubmittedUtc = _dateTimeProvider.GetNowUtc(),
+                    JobType = jobType,
+                    Priority = 1,
+                    Status = JobStatusType.Ready,
+                    SubmittedBy = "System"
+                };
+
+                /* long id = */_jobQueueManager.AddJob(refDataJob);
+            }
+        }
+
+        private async Task ProcessAnyNewJobs()
+        {
+            IEnumerable<Job> jobs = await _jobQueueManager.GetJobsByPriorityAsync(25);
+
+            foreach (Job job in jobs)
+            {
+                _logger.LogInfo($"Got job id: {job.JobId}");
+                await MoveJobForProcessing(job);
+                await MoveJobForCrossLoading(job);
+            }
+        }
+
+        private async Task MoveJobForCrossLoading(Job job)
         {
             if (job.CrossLoadingStatus.HasValue)
             {
                 var result = await _crossLoadingService.SendMessageForCrossLoading(job.JobId);
                 if (result)
                 {
-                    _logger.LogInfo($"Sent job id :{job.JobId} for cross loading");
+                    _logger.LogInfo($"Sent job id: {job.JobId} for cross loading");
                     _jobQueueManager.UpdateCrossLoadingStatus(job.JobId, JobStatusType.MovedForProcessing);
                 }
             }

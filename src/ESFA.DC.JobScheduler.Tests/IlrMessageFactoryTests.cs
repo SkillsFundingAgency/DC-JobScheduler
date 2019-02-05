@@ -29,12 +29,14 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var factory = GetFactory(false, job);
 
-            var result = factory.CreateMessageParameters(It.IsAny<long>());
+            MessageParameters result = factory.CreateMessageParameters(It.IsAny<long>());
 
             result.Should().NotBeNull();
             result.JobType.Should().Be(JobType.IlrSubmission);
             result.JobContextMessage.JobId.Should().Be(10);
-            result.SubscriptionLabel.Should().Be("Validation");
+            result.SubscriptionLabel.Should().Be("A");
+            result.JobContextMessage.Topics[0].SubscriptionName.Should().Be("A");
+            result.JobContextMessage.Topics[0].SubscriptionSqlFilterValue.Should().Be("B");
             result.TopicParameters.ContainsKey("To").Should().Be(true);
         }
 
@@ -118,11 +120,18 @@ namespace ESFA.DC.JobScheduler.Tests
             var mockTopicConfiguration = new Mock<ITopicConfiguration>();
             mockTopicConfiguration.SetupGet(x => x.SubscriptionName).Returns("Validation");
 
+            var jobTopicTaskService = new Mock<IJobTopicTaskService>();
+            jobTopicTaskService.Setup(x => x.GetTopicItems(It.IsAny<JobType>(), It.IsAny<bool>())).Returns(
+                new List<ITopicItem>()
+                {
+                    new TopicItem("A", "B", new List<ITaskItem>())
+                });
+
             var factory = new IlrMessageFactory(
                 new Mock<ILogger>().Object,
                 mockIFileUploadJobManager.Object,
                 mockTopicConfiguration.Object,
-                new Mock<IJobTopicTaskService>().Object);
+                jobTopicTaskService.Object);
 
             return factory;
         }

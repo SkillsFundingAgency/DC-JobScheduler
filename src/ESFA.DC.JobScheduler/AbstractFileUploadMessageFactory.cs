@@ -4,7 +4,6 @@ using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model;
-using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobScheduler.Interfaces;
 using ESFA.DC.JobScheduler.Interfaces.Models;
 using ESFA.DC.Logging.Interfaces;
@@ -33,11 +32,11 @@ namespace ESFA.DC.JobScheduler
 
         public MessageParameters CreateMessageParameters(long jobId)
         {
-            var job = _fileUploadJobManager.GetJobById(jobId);
+            FileUploadJob job = _fileUploadJobManager.GetJobById(jobId);
 
-            var topics = CreateTopics(job.JobType, job.IsFirstStage);
+            List<ITopicItem> topics = _jobTopicTaskService.GetTopicItems(job.JobType, job.IsFirstStage).ToList();
 
-            var contextMessage = new JobContextMessage(
+            JobContextMessage contextMessage = new JobContextMessage(
                 job.JobId,
                 topics,
                 job.Ukprn.ToString(),
@@ -52,16 +51,16 @@ namespace ESFA.DC.JobScheduler
 
             AddExtraKeys(contextMessage, job);
 
-            var message = new MessageParameters(job.JobType)
+            MessageParameters message = new MessageParameters(job.JobType)
             {
                 JobContextMessage = contextMessage,
+                SubscriptionLabel = topics[0].SubscriptionName,
                 TopicParameters = new Dictionary<string, object>
                 {
                     {
-                        "To", _topicConfiguration.SubscriptionName
+                        "To", topics[0].SubscriptionName
                     }
-                },
-                SubscriptionLabel = _topicConfiguration.SubscriptionName,
+                }
             };
 
             return message;
@@ -83,12 +82,6 @@ namespace ESFA.DC.JobScheduler
             }
 
             return key;
-        }
-
-        private List<ITopicItem> CreateTopics(JobType jobType, bool isFirstStage)
-        {
-            var topics = _jobTopicTaskService.GetTopicItems(jobType, isFirstStage);
-            return topics.ToList();
         }
     }
 }

@@ -13,7 +13,8 @@ namespace ESFA.DC.JobScheduler
         public IlrMessageFactory(
             ILogger logger,
             IFileUploadJobManager fileUploadMetaDataManager,
-            [KeyFilter(JobType.IlrSubmission)]ITopicConfiguration topicConfiguration,
+            [KeyFilter(JobType.IlrSubmission)]
+            ITopicConfiguration topicConfiguration,
             IJobTopicTaskService jobTopicTaskService)
             : base(logger, fileUploadMetaDataManager, topicConfiguration, jobTopicTaskService)
         {

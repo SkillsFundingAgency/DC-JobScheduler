@@ -1,12 +1,10 @@
 ﻿using System;
-using ESFA.DC.Queueing;
-using ESFA.DC.Queueing.Interface;
 using ESFA.DC.Queueing.Interface.Configuration;
 using Newtonsoft.Json;
 
 namespace ESFA.DC.JobScheduler.Settings
 {
-    public class ServiceBusTopicConfiguration : ITopicConfiguration
+    public sealed class ServiceBusTopicConfiguration : ITopicConfiguration
     {
         [JsonRequired]
         public string ConnectionString { get; set; }
