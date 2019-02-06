@@ -11,6 +11,7 @@ using ESFA.DC.JobScheduler.Interfaces.Models;
 using ESFA.DC.Logging.Interfaces;
 using ESFA.DC.Queueing.Interface.Configuration;
 using FluentAssertions;
+using Microsoft.VisualStudio.Threading;
 using Moq;
 using Xunit;
 
@@ -29,7 +30,7 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var factory = GetFactory(false, job);
 
-            MessageParameters result = factory.CreateMessageParametersAsync(It.IsAny<long>()).Result;
+            MessageParameters result = new JoinableTaskContext().Factory.Run(() => factory.CreateMessageParametersAsync(It.IsAny<long>()));
 
             result.Should().NotBeNull();
             result.JobType.Should().Be(JobType.IlrSubmission);
