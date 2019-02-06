@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
@@ -30,11 +31,11 @@ namespace ESFA.DC.JobScheduler
             _jobTopicTaskService = jobTopicTaskService;
         }
 
-        public MessageParameters CreateMessageParameters(long jobId)
+        public async Task<MessageParameters> CreateMessageParametersAsync(long jobId)
         {
-            FileUploadJob job = _fileUploadJobManager.GetJobById(jobId);
+            FileUploadJob job = await _fileUploadJobManager.GetJobById(jobId);
 
-            List<ITopicItem> topics = _jobTopicTaskService.GetTopicItems(job.JobType, job.IsFirstStage).ToList();
+            List<ITopicItem> topics = (await _jobTopicTaskService.GetTopicItems(job.JobType, job.IsFirstStage)).ToList();
 
             JobContextMessage contextMessage = new JobContextMessage(
                 job.JobId,
