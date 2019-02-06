@@ -10,7 +10,7 @@ namespace ESFA.DC.JobScheduler.Console.Tests
 #if DEBUG
         [Fact]
 #endif
-        public async Task TestRegistrations()
+        public async Task TestRegistrationsAsync()
         {
             try
             {

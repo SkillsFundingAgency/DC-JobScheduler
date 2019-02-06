@@ -31,7 +31,7 @@
     <PackageReference Include="ESFA.DC.DateTimeProvider.Interface" Version="0.1.6-beta0001" />
     <PackageReference Include="ESFA.DC.JobContext" Version="0.1.16-beta0001" />
     <PackageReference Include="ESFA.DC.JobContext.Interface" Version="0.1.16-beta0001" />
-    <PackageReference Include="ESFA.DC.JobQueueManager" Version="0.1.68-beta0001" />
+    <PackageReference Include="ESFA.DC.JobQueueManager" Version="0.1.69-beta0001" />
     <PackageReference Include="ESFA.DC.Logging" Version="0.1.1-beta0001" />
     <PackageReference Include="ESFA.DC.Queueing" Version="0.1.14-beta0001" />
     <PackageReference Include="ESFA.DC.Queueing.Interface" Version="0.1.14-beta0001" />
@@ -41,6 +41,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.2" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="16.0.102" />
     <PackageReference Include="Microsoft.Web.WebJobs.Publish" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />

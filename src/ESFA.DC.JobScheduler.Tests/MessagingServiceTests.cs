@@ -19,10 +19,8 @@ namespace ESFA.DC.JobScheduler.Tests
 {
     public class MessagingServiceTests
     {
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void SendMessagesAsync_Test(bool isCrossLoaded)
+        [Fact]
+        public void SendMessagesAsync_Test()
         {
             var topicPublishMock = new Mock<ITopicPublishService<JobContextDto>>();
             topicPublishMock.Setup(x => x.PublishAsync(new JobContextDto(), new Dictionary<string, object>(), "Test")).Returns(Task.CompletedTask);

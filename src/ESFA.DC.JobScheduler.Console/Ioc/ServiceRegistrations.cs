@@ -74,7 +74,7 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
                 .As<IQueuePublishService<AuditingDto>>();
             builder.RegisterType<Auditor>().As<IAuditor>().InstancePerLifetimeScope();
 
-            builder.RegisterType<JobQueueDataContext>().As<IJobQueueDataContext>().InstancePerLifetimeScope();
+            builder.RegisterType<JobQueueDataContext>().As<IJobQueueDataContext>();
             builder.Register(context =>
                 {
                     var queueManagerSettings = context.Resolve<JobQueueManagerSettings>();

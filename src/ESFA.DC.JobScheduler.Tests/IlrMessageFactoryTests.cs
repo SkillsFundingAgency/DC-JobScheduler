@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
@@ -9,6 +11,7 @@ using ESFA.DC.JobScheduler.Interfaces.Models;
 using ESFA.DC.Logging.Interfaces;
 using ESFA.DC.Queueing.Interface.Configuration;
 using FluentAssertions;
+using Microsoft.VisualStudio.Threading;
 using Moq;
 using Xunit;
 
@@ -16,10 +19,8 @@ namespace ESFA.DC.JobScheduler.Tests
 {
     public class IlrMessageFactoryTests
     {
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void CreateMessageParameters_Success(bool isCrossLoaded)
+        [Fact]
+        public void CreateMessageParameters_Success()
         {
             var job = new FileUploadJob()
             {
@@ -29,7 +30,7 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var factory = GetFactory(false, job);
 
-            MessageParameters result = factory.CreateMessageParameters(It.IsAny<long>());
+            MessageParameters result = new JoinableTaskContext().Factory.Run(() => factory.CreateMessageParametersAsync(It.IsAny<long>()));
 
             result.Should().NotBeNull();
             result.JobType.Should().Be(JobType.IlrSubmission);
@@ -41,7 +42,7 @@ namespace ESFA.DC.JobScheduler.Tests
         }
 
         [Fact]
-        public void GenerateKeys()
+        public async Task GenerateKeysAsync()
         {
             var job = new FileUploadJob()
             {
@@ -52,7 +53,7 @@ namespace ESFA.DC.JobScheduler.Tests
 
             IlrMessageFactory factory = GetFactory(false, job);
 
-            MessageParameters result = factory.CreateMessageParameters(It.IsAny<long>());
+            MessageParameters result = await factory.CreateMessageParametersAsync(It.IsAny<long>());
 
             result.JobContextMessage.KeyValuePairs[JobContextMessageKey.InvalidLearnRefNumbers].Should()
                 .Be($"{job.Ukprn}/{job.JobId}/ValidationInvalidLearners.json");
@@ -109,7 +110,7 @@ namespace ESFA.DC.JobScheduler.Tests
         private IlrMessageFactory GetFactory(bool isFirstStage = true, FileUploadJob job = null)
         {
             var mockIFileUploadJobManager = new Mock<IFileUploadJobManager>();
-            mockIFileUploadJobManager.Setup(x => x.GetJobById(It.IsAny<long>())).Returns(
+            mockIFileUploadJobManager.Setup(x => x.GetJobById(It.IsAny<long>())).ReturnsAsync(
                 job ?? new FileUploadJob
                 {
                     IsFirstStage = isFirstStage,
@@ -121,7 +122,7 @@ namespace ESFA.DC.JobScheduler.Tests
             mockTopicConfiguration.SetupGet(x => x.SubscriptionName).Returns("Validation");
 
             var jobTopicTaskService = new Mock<IJobTopicTaskService>();
-            jobTopicTaskService.Setup(x => x.GetTopicItems(It.IsAny<JobType>(), It.IsAny<bool>())).Returns(
+            jobTopicTaskService.Setup(x => x.GetTopicItems(It.IsAny<JobType>(), It.IsAny<bool>(), default(CancellationToken))).ReturnsAsync(
                 new List<ITopicItem>()
                 {
                     new TopicItem("A", "B", new List<ITaskItem>())

@@ -20,5 +20,3 @@ namespace ESFA.DC.JobScheduler.Settings
         public TimeSpan MaximumCallbackTimeSpan => new TimeSpan(0, 10, 0);
     }
 }
-
-
