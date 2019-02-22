@@ -82,7 +82,7 @@ namespace ESFA.DC.JobScheduler
                 return;
             }
 
-            _logger.LogInfo($"Job id: {job.JobId} received for moving to queue");
+            _logger.LogInfo($"Job id: {job.JobId} received for moving to queue", jobIdOverride: job.JobId);
 
             var message = await _jobContextMessageFactories[job.JobType].CreateMessageParametersAsync(job.JobId);
 
@@ -90,7 +90,7 @@ namespace ESFA.DC.JobScheduler
             {
                 var jobStatusUpdated = await _jobQueueManager.UpdateJobStatus(job.JobId, JobStatusType.MovedForProcessing);
 
-                _logger.LogInfo($"Job id: {job.JobId} status updated successfully");
+                _logger.LogInfo($"Job id: {job.JobId} status updated successfully", jobIdOverride: job.JobId);
 
                 if (jobStatusUpdated)
                 {
@@ -101,7 +101,7 @@ namespace ESFA.DC.JobScheduler
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"Job id: {job.JobId} sending to service bus failed", ex);
+                        _logger.LogError($"Job id: {job.JobId} sending to service bus failed", ex, jobIdOverride: job.JobId);
                         await _auditor.AuditAsync(
                             message.JobContextMessage,
                             AuditEventType.ServiceFailed,
@@ -112,7 +112,7 @@ namespace ESFA.DC.JobScheduler
                 }
                 else
                 {
-                    _logger.LogWarning($"Job id : {job.JobId} failed to send to service bus");
+                    _logger.LogWarning($"Job id : {job.JobId} failed to send to service bus", jobIdOverride: job.JobId);
                     await _auditor.AuditAsync(
                         message.JobContextMessage,
                         AuditEventType.JobFailed,
@@ -121,7 +121,7 @@ namespace ESFA.DC.JobScheduler
             }
             catch (Exception exception)
             {
-                _logger.LogError($"Job id: {job.JobId}", exception);
+                _logger.LogError($"Job id: {job.JobId}", exception, jobIdOverride: job.JobId);
                 await _auditor.AuditAsync(
                     message.JobContextMessage,
                     AuditEventType.ServiceFailed,
@@ -153,7 +153,7 @@ namespace ESFA.DC.JobScheduler
 
             foreach (Job job in jobs)
             {
-                _logger.LogInfo($"Got job id: {job.JobId}");
+                _logger.LogInfo($"Got job id: {job.JobId}", jobIdOverride: job.JobId);
                 await MoveJobForProcessingAsync(job);
                 await MoveJobForCrossLoadingAsync(job);
             }
@@ -166,7 +166,7 @@ namespace ESFA.DC.JobScheduler
                 var result = await _crossLoadingService.SendMessageForCrossLoadingAsync(job.JobId);
                 if (result)
                 {
-                    _logger.LogInfo($"Sent job id: {job.JobId} for cross loading");
+                    _logger.LogInfo($"Sent job id: {job.JobId} for cross loading", jobIdOverride: job.JobId);
                     await _jobQueueManager.UpdateCrossLoadingStatus(job.JobId, JobStatusType.MovedForProcessing);
                 }
             }
