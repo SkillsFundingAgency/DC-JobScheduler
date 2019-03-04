@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Autofac.Features.AttributeFilters;
+using System.Threading.Tasks;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model;
-using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobScheduler.Interfaces;
 using ESFA.DC.JobScheduler.Interfaces.Models;
-using ESFA.DC.JobScheduler.Settings;
-using ESFA.DC.KeyGenerator.Interface;
 using ESFA.DC.Logging.Interfaces;
 using ESFA.DC.Queueing.Interface.Configuration;
 
@@ -36,13 +31,13 @@ namespace ESFA.DC.JobScheduler
             _jobTopicTaskService = jobTopicTaskService;
         }
 
-        public MessageParameters CreateMessageParameters(long jobId)
+        public async Task<MessageParameters> CreateMessageParametersAsync(long jobId)
         {
-            var job = _fileUploadJobManager.GetJobById(jobId);
+            FileUploadJob job = await _fileUploadJobManager.GetJobById(jobId);
 
-            var topics = CreateTopics(job.JobType, job.IsFirstStage);
+            List<ITopicItem> topics = (await _jobTopicTaskService.GetTopicItems(job.JobType, job.IsFirstStage)).ToList();
 
-            var contextMessage = new JobContextMessage(
+            JobContextMessage contextMessage = new JobContextMessage(
                 job.JobId,
                 topics,
                 job.Ukprn.ToString(),
@@ -57,29 +52,37 @@ namespace ESFA.DC.JobScheduler
 
             AddExtraKeys(contextMessage, job);
 
-            var message = new MessageParameters(job.JobType)
+            MessageParameters message = new MessageParameters(job.JobType)
             {
                 JobContextMessage = contextMessage,
+                SubscriptionLabel = topics[0].SubscriptionName,
                 TopicParameters = new Dictionary<string, object>
                 {
                     {
-                        "To", _topicConfiguration.SubscriptionName
+                        "To", topics[0].SubscriptionName
                     }
-                },
-                SubscriptionLabel = _topicConfiguration.SubscriptionName,
+                }
             };
 
             return message;
         }
 
-        public virtual void AddExtraKeys(JobContextMessage message, FileUploadJob metaData)
-        {
-        }
+        public abstract void AddExtraKeys(IJobContextMessage message, FileUploadJob metaData);
 
-        public List<ITopicItem> CreateTopics(JobType jobType, bool isFirstStage)
+        protected string GenerateKey(long ukprn, long jobId, string value, string extension = null)
         {
-            var topics = _jobTopicTaskService.GetTopicItems(jobType, isFirstStage);
-            return topics.ToList();
+            string key = $"{ukprn}/{jobId}/{value}";
+            if (!string.IsNullOrEmpty(extension))
+            {
+                if (!extension.StartsWith("."))
+                {
+                    key += ".";
+                }
+
+                key += extension;
+            }
+
+            return key;
         }
     }
 }

@@ -8,12 +8,13 @@ using ESFA.DC.Queueing.Interface.Configuration;
 
 namespace ESFA.DC.JobScheduler
 {
-    public sealed class EasMessageFactory : AbstractFileUploadMessageFactory
+    public sealed class PeriodEndMessageFactory : AbstractFileUploadMessageFactory
     {
-        public EasMessageFactory(
+        public PeriodEndMessageFactory(
             ILogger logger,
             IFileUploadJobManager fileUploadMetaDataManager,
-            [KeyFilter(JobType.EasSubmission)]ITopicConfiguration topicConfiguration,
+            [KeyFilter(JobType.PeriodEnd)]
+            ITopicConfiguration topicConfiguration,
             IJobTopicTaskService jobTopicTaskService)
             : base(logger, fileUploadMetaDataManager, topicConfiguration, jobTopicTaskService)
         {

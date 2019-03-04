@@ -13,12 +13,8 @@ using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobSchduler.CrossLoading;
 using ESFA.DC.JobScheduler.Interfaces;
 using ESFA.DC.JobScheduler.Interfaces.Models;
-using ESFA.DC.JobScheduler.Settings;
 using ESFA.DC.JobStatus.Interface;
-using ESFA.DC.KeyGenerator.Interface;
 using ESFA.DC.Logging.Interfaces;
-using ESFA.DC.Queueing.Interface;
-using ESFA.DC.Queueing.Interface.Configuration;
 using Moq;
 using Xunit;
 
@@ -32,7 +28,6 @@ namespace ESFA.DC.JobScheduler.Tests
             var queueHandler = GetJobQueueHandler();
 
             Task.Factory.StartNew(() => queueHandler.ProcessNextJobAsync(CancellationToken.None).ConfigureAwait(true)).Wait(TimeSpan.FromSeconds(2));
-            //jobQueueManagerMock.Verify(x => x.GetJobByPriority(), Times.AtLeastOnce);
         }
 
         [Fact]
@@ -46,7 +41,7 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var jobQueueManagerMock = new Mock<IJobManager>();
             jobQueueManagerMock.Setup(x => x.GetJobsByPriorityAsync(It.IsAny<int>())).ReturnsAsync(new List<Job>() { new Jobs.Model.Job() });
-            jobQueueManagerMock.Setup(x => x.UpdateJobStatus(It.IsAny<long>(), It.IsAny<JobStatusType>())).Returns(true);
+            jobQueueManagerMock.Setup(x => x.UpdateJobStatus(It.IsAny<long>(), It.IsAny<JobStatusType>())).ReturnsAsync(true);
 
             var auditorMock = new Mock<IAuditor>();
             auditorMock.Setup(x => x.AuditAsync(It.IsAny<JobContextMessage>(), AuditEventType.ServiceFailed, It.IsAny<string>())).Returns(Task.CompletedTask);
@@ -56,7 +51,7 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var queueHandler = GetJobQueueHandler(messagingServiceMock.Object, auditorMock.Object, jobQueueManagerMock.Object);
 
-            var task = queueHandler.MoveJobForProcessing(job).ConfigureAwait(true);
+            var task = queueHandler.MoveJobForProcessingAsync(job).ConfigureAwait(true);
             task.GetAwaiter().GetResult();
 
             jobQueueManagerMock.Verify(x => x.UpdateJobStatus(job.JobId, JobStatusType.MovedForProcessing), Times.Once);
@@ -75,7 +70,7 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var jobQueueManagerMock = new Mock<IJobManager>();
             jobQueueManagerMock.Setup(x => x.GetJobsByPriorityAsync(It.IsAny<int>())).ReturnsAsync(new List<Job>() { new Jobs.Model.Job() });
-            jobQueueManagerMock.Setup(x => x.UpdateJobStatus(It.IsAny<long>(), It.IsAny<JobStatusType>())).Returns(false);
+            jobQueueManagerMock.Setup(x => x.UpdateJobStatus(It.IsAny<long>(), It.IsAny<JobStatusType>())).ReturnsAsync(false);
 
             var auditorMock = new Mock<IAuditor>();
             auditorMock.Setup(x => x.AuditAsync(It.IsAny<JobContextMessage>(), AuditEventType.ServiceFailed, It.IsAny<string>())).Returns(Task.CompletedTask);
@@ -85,7 +80,7 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var queueHandler = GetJobQueueHandler(messagingServiceMock.Object, auditorMock.Object, jobQueueManagerMock.Object);
 
-            var task = queueHandler.MoveJobForProcessing(job).ConfigureAwait(true);
+            var task = queueHandler.MoveJobForProcessingAsync(job).ConfigureAwait(true);
             task.GetAwaiter().GetResult();
 
             jobQueueManagerMock.Verify(x => x.UpdateJobStatus(job.JobId, JobStatusType.MovedForProcessing), Times.Once);
@@ -105,8 +100,8 @@ namespace ESFA.DC.JobScheduler.Tests
             auditorMock.Setup(x => x.AuditAsync(It.IsAny<JobContext.JobContextMessage>(), AuditEventType.ServiceFailed, It.IsAny<string>())).Returns(Task.CompletedTask);
 
             var messageFactoryMock = new Mock<IMessageFactory>();
-            messageFactoryMock.Setup(x => x.CreateMessageParameters(It.IsAny<long>()))
-                .Returns(new MessageParameters(JobType.IlrSubmission));
+            messageFactoryMock.Setup(x => x.CreateMessageParametersAsync(It.IsAny<long>()))
+                .ReturnsAsync(new MessageParameters(JobType.IlrSubmission));
 
             var indexedMock = new Mock<IIndex<JobType, IMessageFactory>>();
             indexedMock.SetupGet(x => x[JobType.IlrSubmission]).Returns(messageFactoryMock.Object);

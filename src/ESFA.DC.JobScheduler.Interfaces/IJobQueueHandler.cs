@@ -7,6 +7,6 @@ namespace ESFA.DC.JobScheduler.Interfaces
     {
         Task ProcessNextJobAsync(CancellationToken cancellationToken);
 
-        Task MoveJobForProcessing(Jobs.Model.Job job);
+        Task MoveJobForProcessingAsync(Jobs.Model.Job job);
     }
 }

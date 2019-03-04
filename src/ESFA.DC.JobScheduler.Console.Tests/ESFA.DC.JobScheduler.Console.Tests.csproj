@@ -16,6 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="FluentAssertions" Version="5.4.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="16.0.102" />
     <PackageReference Include="Moq" Version="4.8.3" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
     <PackageReference Include="xunit" Version="2.4.0-beta.2.build4010" />
@@ -24,6 +25,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ESFA.DC.JobScheduler.Console\ESFA.DC.JobScheduler.Console.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

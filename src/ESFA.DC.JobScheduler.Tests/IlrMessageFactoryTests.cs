@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using ESFA.DC.JobContext;
 using ESFA.DC.JobContext.Interface;
 using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model;
 using ESFA.DC.Jobs.Model.Enums;
-using ESFA.DC.JobScheduler.Settings;
-using ESFA.DC.KeyGenerator.Interface;
+using ESFA.DC.JobScheduler.Interfaces.Models;
 using ESFA.DC.Logging.Interfaces;
 using ESFA.DC.Queueing.Interface.Configuration;
 using FluentAssertions;
+using Microsoft.VisualStudio.Threading;
 using Moq;
 using Xunit;
 
@@ -20,10 +19,8 @@ namespace ESFA.DC.JobScheduler.Tests
 {
     public class IlrMessageFactoryTests
     {
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void CreateMessageParameters_Success(bool isCrossLoaded)
+        [Fact]
+        public void CreateMessageParameters_Success()
         {
             var job = new FileUploadJob()
             {
@@ -33,13 +30,33 @@ namespace ESFA.DC.JobScheduler.Tests
 
             var factory = GetFactory(false, job);
 
-            var result = factory.CreateMessageParameters(It.IsAny<long>());
+            MessageParameters result = new JoinableTaskContext().Factory.Run(() => factory.CreateMessageParametersAsync(It.IsAny<long>()));
 
             result.Should().NotBeNull();
             result.JobType.Should().Be(JobType.IlrSubmission);
             result.JobContextMessage.JobId.Should().Be(10);
-            result.SubscriptionLabel.Should().Be("Validation");
+            result.SubscriptionLabel.Should().Be("A");
+            result.JobContextMessage.Topics[0].SubscriptionName.Should().Be("A");
+            result.JobContextMessage.Topics[0].SubscriptionSqlFilterValue.Should().Be("B");
             result.TopicParameters.ContainsKey("To").Should().Be(true);
+        }
+
+        [Fact]
+        public async Task GenerateKeysAsync()
+        {
+            var job = new FileUploadJob()
+            {
+                JobType = JobType.IlrSubmission,
+                JobId = 10,
+                Ukprn = 123456
+            };
+
+            IlrMessageFactory factory = GetFactory(false, job);
+
+            MessageParameters result = await factory.CreateMessageParametersAsync(It.IsAny<long>());
+
+            result.JobContextMessage.KeyValuePairs[JobContextMessageKey.InvalidLearnRefNumbers].Should()
+                .Be($"{job.Ukprn}/{job.JobId}/ValidationInvalidLearners.json");
         }
 
         [Theory]
@@ -93,7 +110,7 @@ namespace ESFA.DC.JobScheduler.Tests
         private IlrMessageFactory GetFactory(bool isFirstStage = true, FileUploadJob job = null)
         {
             var mockIFileUploadJobManager = new Mock<IFileUploadJobManager>();
-            mockIFileUploadJobManager.Setup(x => x.GetJobById(It.IsAny<long>())).Returns(
+            mockIFileUploadJobManager.Setup(x => x.GetJobById(It.IsAny<long>())).ReturnsAsync(
                 job ?? new FileUploadJob
                 {
                     IsFirstStage = isFirstStage,
@@ -104,12 +121,18 @@ namespace ESFA.DC.JobScheduler.Tests
             var mockTopicConfiguration = new Mock<ITopicConfiguration>();
             mockTopicConfiguration.SetupGet(x => x.SubscriptionName).Returns("Validation");
 
+            var jobTopicTaskService = new Mock<IJobTopicTaskService>();
+            jobTopicTaskService.Setup(x => x.GetTopicItems(It.IsAny<JobType>(), It.IsAny<bool>(), default(CancellationToken))).ReturnsAsync(
+                new List<ITopicItem>()
+                {
+                    new TopicItem("A", "B", new List<ITaskItem>())
+                });
+
             var factory = new IlrMessageFactory(
-                new Mock<IKeyGenerator>().Object,
                 new Mock<ILogger>().Object,
                 mockIFileUploadJobManager.Object,
                 mockTopicConfiguration.Object,
-                new Mock<IJobTopicTaskService>().Object);
+                jobTopicTaskService.Object);
 
             return factory;
         }

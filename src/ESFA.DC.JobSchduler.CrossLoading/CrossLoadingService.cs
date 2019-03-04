@@ -38,16 +38,16 @@ namespace ESFA.DC.JobSchduler.CrossLoading
             _connectionString = connectionStrings.Organisation;
         }
 
-        public async Task<bool> SendMessageForCrossLoading(long jobId)
+        public async Task<bool> SendMessageForCrossLoadingAsync(long jobId)
         {
-            var job = _jobQueueManager.GetJobById(jobId);
+            var job = await _jobQueueManager.GetJobById(jobId);
 
             if (job.JobType == JobType.IlrSubmission && job.IsFirstStage)
             {
                 return false;
             }
 
-            var upin = await GetUpin(job.Ukprn);
+            var upin = await GetUpinAsync(job.Ukprn);
             var reportsFileName = $"{job.Ukprn}/{job.JobId}/ReportsDC";
             var message = new MessageCrossLoadDctToDcft(
                 job.JobId,
@@ -65,7 +65,7 @@ namespace ESFA.DC.JobSchduler.CrossLoading
             return true;
         }
 
-        public async Task<long> GetUpin(long ukprn)
+        public async Task<long> GetUpinAsync(long ukprn)
         {
             using (var sqlConnection = new SqlConnection(_connectionString))
             {

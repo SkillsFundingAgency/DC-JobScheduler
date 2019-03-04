@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using ESFA.DC.JobNotifications;
-using ESFA.DC.JobQueueManager.Interfaces;
 using ESFA.DC.Jobs.Model.Enums;
 using ESFA.DC.JobScheduler.Console.Extensions;
 using ESFA.DC.JobScheduler.Settings;
@@ -22,6 +21,12 @@ namespace ESFA.DC.JobScheduler.Console.Ioc
                 .Keyed<ITopicConfiguration>(JobType.EsfSubmission).SingleInstance();
             builder.Register(c => configuration.GetConfigSection<ServiceBusTopicConfiguration>("EasTopicConfiguration"))
                 .Keyed<ITopicConfiguration>(JobType.EasSubmission).SingleInstance();
+            builder.Register(c => configuration.GetConfigSection<ServiceBusTopicConfiguration>("PeriodEndTopicConfiguration"))
+                .Keyed<ITopicConfiguration>(JobType.PeriodEnd).SingleInstance();
+            builder.Register(c => configuration.GetConfigSection<ServiceBusTopicConfiguration>("ReferenceDataTopicConfiguration"))
+                .Keyed<ITopicConfiguration>(JobType.ReferenceDataEPA)
+                .Keyed<ITopicConfiguration>(JobType.ReferenceDataFCS)
+                .SingleInstance();
 
             builder.Register(c => configuration.GetConfigSection<AuditQueueConfiguration>())
                 .As<AuditQueueConfiguration>().SingleInstance();
