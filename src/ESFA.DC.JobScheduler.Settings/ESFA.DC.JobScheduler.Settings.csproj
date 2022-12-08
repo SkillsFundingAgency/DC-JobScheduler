@@ -16,7 +16,7 @@
     <PackageReference Include="ESFA.DC.JobQueueManager" Version="0.1.71-beta0001" />
     <PackageReference Include="ESFA.DC.Queueing.Interface" Version="0.1.14-beta0001" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="16.0.102" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
   </ItemGroup>
 
